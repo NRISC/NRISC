@@ -1,2 +1,2 @@
 # NRISC
-NRISC, a uRISC core
+NRISC, a RISC uCore
