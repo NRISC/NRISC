@@ -1,20 +1,20 @@
 //ULA
 
 /*************************************************************************
- *  descricao do bloco ula                              versao 0.01      *
+ *  descricao do bloco ula                              versao 0.1       *
  *                                                                       *
- *  Developer: Marlon 	                           20-11-2016            *
+ *  Developer: Marlon 	                           27-11-2016            *
  *             marlonsigales@gmail.com                                   *
  *  Corrector: Mariano                             22-11-2016            *
  *             Jean Carlos Scheunemann             22-11-2016            *
- *              jeancarsch@gmail.com                                     *
+ *             jeancarsch@gmail.com                                      *
  *                                                                       *
  * soma(inc, twc), sub(dec), xor, and, or, not, shr(rtr), shl(rtl)       *
  *                                                                       *
  *************************************************************************/ 
 
  
-// `timescale 1 ns / 1 ns
+`timescale 1 ns / 1 ns
  
 module NRISC_ULA(
 					ULA_A,      //ULA input A 
@@ -22,7 +22,7 @@ module NRISC_ULA(
 					ULA_OUT,    // output output 
 					ULA_ctrl,   //input comando
 					ULA_flags,  //output minus, carry, zero
-					clk,        //input clock           saída na subida  
+					clk,        //input clock           saida na subida  
 					rst	        //input	reset		    ativo baixo	
 					);
 
@@ -36,7 +36,7 @@ module NRISC_ULA(
 	input wire [TAM-1:0] ULA_B;
 	input wire clk;//teste
 	input wire rst;
-	input wire [3:0] ULA_ctrl;//4 fios de controle, do bit2 ao bit0 seleção de função, bit3 seleção para os rot/shr ou assim por diante
+	input wire [3:0] ULA_ctrl;//4 fios de controle, do bit2 ao bit0 selecao de funcao, bit3 selecao para os rot/shr ou assim por diante
 	//-------------portas de saida--------------------------------------------------------------------
 	output reg [TAM-1:0] ULA_OUT;
 	output reg [2:0] ULA_flags;
@@ -52,8 +52,8 @@ module NRISC_ULA(
 	wire carrymin;
 	wire carrysom;
 											
-	wire cin;   //para escolher entre soma e subtraçao  
-	wire cmd;   //se 0 é shift e se 1 rotate
+	wire cin;   //para escolher entre soma e subtracao  
+	wire cmd;   //se 0 e shift e se 1 rotate
 	wire [2:0] ctrla; //lsb do ula ctrl
 	
 	assign {cmd, ctrla} = ULA_ctrl;// controle 
@@ -63,7 +63,7 @@ module NRISC_ULA(
 	reg coutsum; //carry da soma
 	
 				
-	wire [TAM-1:0] Outsum; //saida soma(inc,twc) subtração(dec) 
+	wire [TAM-1:0] Outsum; //saida soma(inc,twc) subtracao(dec) 
 	wire [TAM-1:0] Outrr;  //saida rotate ou shift direita
 	wire [TAM-1:0] Outrl;  //saida rotate ou shift esquerda
 	wire [TAM-1:0] Outand; //saida and
@@ -72,38 +72,38 @@ module NRISC_ULA(
 	wire [TAM-1:0] Outxor; //saida xor
 
 
-//descrever criterios de seleção do mux, chamar todas as funções em paralelo			
-//chamadas das funções;
+//descrever criterios de selecao do mux, chamar todas as funcoes em paralelo			
+//chamadas das funcoes;
    
 	
 //nomemodulo nomelocal (.parametrolah(parametroaqui)) (conexoes)(   // .nomelah (nomeaqui))   
-    andn    #(.TAM(TAM)) and1 ( .A (A), .B (B), .Outand (Outand));  
-    orn     #(.TAM(TAM)) or1  ( .A (A), .B (B), .Outor (Outor));
-	xorn    #(.TAM(TAM)) xor1 ( .A (A), .B (B), .Outxor (Outxor));
-	notn    #(.TAM(TAM)) not1 ( .A (A), .Outnot (Outnot));
-	rotshl  #(.TAM(TAM)) rotshiftl ( .A (A), .cmd (cmd), .Outrl (Outrl));  
-    rotshr  #(.TAM(TAM)) rotshiftr ( .A (A), .cmd (cmd), .Outrr (Outrr)); 
-	somaUla #(.TAM(TAM)) sumsub ( .A (A), .B (B), .cin (cin), .Outsum (Outsum));
+  andn    #(.TAM(TAM)) and1 ( .A (ULA_A), .B (ULA_B), .Outand (Outand));  
+  orn     #(.TAM(TAM)) or1  ( .A (ULA_A), .B (ULA_B), .Outor (Outor));
+	xorn    #(.TAM(TAM)) xor1 ( .A (ULA_A), .B (ULA_B), .Outxor (Outxor));
+	notn    #(.TAM(TAM)) not1 ( .A (ULA_A), .Outnot (Outnot));
+  rotshl  #(.TAM(TAM)) rotshiftl ( .A (ULA_A), .cmd (cmd), .Outrl (Outrl));  
+  rotshr  #(.TAM(TAM)) rotshiftr ( .A (ULA_A), .cmd (cmd), .Outrr (Outrr)); 
+	somaUla #(.TAM(TAM)) sumsub ( .A (ULA_A), .B (ULA_B), .cin (cin), .Outsum (Outsum));
 //linkando os resultados das flags	   
-    assign cin = (ctrla== 3'b001) ? 1'b1 : 1'b0; // seleção se é menos ou mais
+    assign cin = (ctrla== 3'b001) ? 1'b1 : 1'b0; // selecao se eh menos ou mais
 	
-	assign carryl = (A[TAM-1] && ~(cmd) && ctrla[2]&& ctrla[1] && ~(ctrla[0]));//só é 1 se a seleção estiver nele e se carry da operação foi setado
-    assign carryr = (A[0] && ~(cmd) && ctrla[2]&& ~(ctrla[1]) && ctrla[0]);//                                       ||
-    assign carrysom = (~(A[TAM-1]) && ~(B[TAM-1]) && Outsum[TAM-1] && ~(ctrla[2]) && ~(ctrla[1]) && ~(ctrla[0]));// ||
-    assign carrymin = (A[TAM-1] && B[TAM-1] && ~(ctrla[2]) && ~(ctrla[1]) && ctrla[0]);//                           ||
-    assign carry = carrymin|| carrysom  || carryl || carryr; //verifica se carry    
-    assign zero = ULA_OUT ? 1'b1 : 1'b0;      //flag zero ativa quando a saida é zero
-    assign minus = (((A[TAM-1] && B[TAM-1] ) ||Outsum[TAM-1]) && ~(ctrla[2]) && ~(ctrla[1])); //apenas operações de soma que retornam menos
+	  assign carryl = (ULA_A[TAM-1] & ~(cmd) & ctrla[2] & ctrla[1] & ~(ctrla[0]));//so eh 1 se a selecao estiver nele e se carry da operacao foi setado
+    assign carryr = (ULA_A[0] & ~(cmd) & ctrla[2] & ~(ctrla[1]) & ctrla[0]);//                                       ||
+    assign carrysom = (~(ULA_A[TAM-1]) & ~(ULA_B[TAM-1]) & Outsum[TAM-1] & ~(ctrla[2]) & ~(ctrla[1]) & ~(ctrla[0]));// ||
+    assign carrymin = (ULA_A[TAM-1] & ULA_B[TAM-1] & ~(ctrla[2]) & ~(ctrla[1]) & ctrla[0]);//                           ||
+    assign carry = carrymin | carrysom  | carryl | carryr; //verifica se carry    
+    assign zero = ULA_OUT ? 1'b1 : 1'b0;      //flag zero ativa quando a saida e zero
+    assign minus = (((ULA_A[TAM-1] & ULA_B[TAM-1] ) ||Outsum[TAM-1]) && ~(ctrla[2]) && ~(ctrla[1])); //apenas operacoes de soma que retornam menos
 
 
-	// registros das saídas 
+	// registros das saidas 
 	always @ (posedge clk)
-		begin : rota de clk
+		begin : rotadeclk
 			if (rst == 0) begin                 //reset ativo baixo?
-               y <= 0;
+               ULA_OUT <= 0;
 			end 
 			else  begin
-				//mux de seleção de saída 
+				//mux de selecao de saida 
 				case( ctrla ) 
 					3'b000 : ULA_OUT = Outsum;
 					3'b001 : ULA_OUT = Outsum;//menos
@@ -115,7 +115,7 @@ module NRISC_ULA(
 					3'b111 : ULA_OUT = Outnot;
 				endcase
 			
-				ULA_flags = {minus, zero, carry};  //concatena as flags para enviar para a saída 
+				ULA_flags = {minus, zero, carry};  //concatena as flags para enviar para a saida 
 	        end
 	end
 	
@@ -135,7 +135,7 @@ module notn(A, Outnot);
 	input wire [TAM-1:0] A;
 	
 	//-------------portas de saida--------------------------------------------------------------------
-	output reg [TAM-1:0] Outnot;	
+	output wire [TAM-1:0] Outnot;	
 	
 	assign Outnot = ~(A);
 endmodule;
@@ -148,7 +148,7 @@ module andn(A, B, Outand);
 	input wire [TAM-1:0] B;
 	
 	//-------------portas de saida--------------------------------------------------------------------
-	output reg [TAM-1:0] Outand;	
+	output wire [TAM-1:0] Outand;	
 	
 	assign Outand = A & B;
 endmodule;
@@ -163,7 +163,7 @@ module orn(A, B, Outor);
 	input wire [TAM-1:0] B;
 	
 	//-------------portas de saida--------------------------------------------------------------------
-	output reg [TAM-1:0] Outor;	
+	output wire [TAM-1:0] Outor;	
 	
 	assign Outor = A | B;
 endmodule;
@@ -180,7 +180,7 @@ module xorn(A, B, Outxor);
 	input wire [TAM-1:0] B;
 	
 	//-------------portas de saida--------------------------------------------------------------------
-	output reg [TAM-1:0] Outxor;
+	output wire [TAM-1:0] Outxor;
 	
 	assign Outxor = A ^ B;
 	
@@ -197,8 +197,8 @@ module rotshr(A, cmd, Outrr);
 	input wire cmd;
 	
 	//-------------portas de saida--------------------------------------------------------------------
-	output reg [TAM-1:0] Outrr;	
-	output reg coutr	
+	output wire [TAM-1:0] Outrr;	
+
     
 		
 	assign Outrr[TAM-1] =  cmd ? A[0] : A[TAM-1]; //se rotate carrega o lsb pro msb
@@ -206,7 +206,7 @@ module rotshr(A, cmd, Outrr);
 	genvar I;
 	generate        
 		for (I=0; I<TAM-2 ; I=I+1) begin: rotater 
-			assign Outrr[I] =A[I+1]              
+			assign Outrr[I] =A[I+1] ;             
 	end
 	endgenerate
 
@@ -220,17 +220,16 @@ module rotshl(A, cmd, Outrl);
 	//-------------portas de entrada------------------------------------------------------------------
 	input wire [TAM-1:0] A;
 	input wire cmd;
-	input wire clk;
-	//-------------portas de saida--------------------------------------------------------------------
-	output reg [TAM-1:0] Outrl;	
-	output reg coutl
 	
+	//-------------portas de saida--------------------------------------------------------------------
+	output wire [TAM-1:0] Outrl;	
+		
 	assign Outrl[0] =  cmd ? A[TAM-1] : 1'b0;  //se rotate carrega o msb pro lsb
 	
-	genvar I;
+	genvar J;
 	generate        
-		for (I=0; I<TAM-2 ; I=I+1) begin: rotatel 
-			assign Outrl[I+1] =A[I]
+		for (J=0; J<TAM-2 ; J=J+1) begin: rotatel 
+			assign Outrl[J+1] =A[J];
 	end
 	endgenerate
 	
@@ -249,26 +248,26 @@ module somaUla(A, B, cin, Outsum);
 		input wire cin;
 		
 		//-------------portas de saida--------------------------------------------------------------------
-		output reg [TAM-1:0] Outsum;
+		output wire [TAM-1:0] Outsum;
 		
-		wire [TAM-1] Baux;
+		wire [TAM-1:0] Baux;
 		
-		wire [TAM-1] x;
-		wire [TAM-1] y;
-		wire [TAM-1] w;
-		wire [TAM-1] suminternal;
-		wire [TAM-1] coutinternal;
+		wire [TAM-1:0] x;
+		wire [TAM-1:0] y;
+		wire [TAM-1:0] w;
+		wire [TAM-1:0] suminternal;
+		wire [TAM-1:0] coutinternal;
 		
-		assign Baux = B ^ {TAM{cin}};          //seleção entre mais ou menos
+		assign Baux = B ^ {TAM{cin}};          //selecao entre mais ou menos
 		
-		//primeiro ful adder, o diferentão, que carrega a seleção
+		//primeiro ful adder, o diferentao, que carrega a selecao
 		assign x[0] = A[0] & Baux[0];
 		assign y[0] = A[0] ^ Baux[0];
 		assign w[0] = y[0] & cin;
 		assign suminternal[0] = y[0] ^ cin;
 		assign coutinternal[0] = w[0] | x[0];
 					
-		//descrição dos outros full adder com generate
+		//descricao dos outros full adder com generate
 		genvar I;
 			generate        
 				for (I=1; I<TAM-1 ; I=I+1) begin: fulladers 
