@@ -1,7 +1,7 @@
 //ULA
 
 /*************************************************************************
- *  descricao do bloco ula                              versao 0.1       *
+ *  descricao do bloco ula                              versao 0.01      *
  *                                                                       *
  *  Developer: Marlon 	                           27-11-2016            *
  *             marlonsigales@gmail.com                                   *
@@ -58,11 +58,7 @@ module NRISC_ULA(
 	
 	assign {cmd, ctrla} = ULA_ctrl;// controle 
 	
-	reg coutr; //carry do shift direita 
-	reg coutl; //carry do shift esquerda
-	reg coutsum; //carry da soma
-	
-				
+					
 	wire [TAM-1:0] Outsum; //saida soma(inc,twc) subtracao(dec) 
 	wire [TAM-1:0] Outrr;  //saida rotate ou shift direita
 	wire [TAM-1:0] Outrl;  //saida rotate ou shift esquerda
@@ -91,8 +87,9 @@ module NRISC_ULA(
     assign carryr = (ULA_A[0] & ~(cmd) & ctrla[2] & ~(ctrla[1]) & ctrla[0]);//                                       ||
     assign carrysom = (~(ULA_A[TAM-1]) & ~(ULA_B[TAM-1]) & Outsum[TAM-1] & ~(ctrla[2]) & ~(ctrla[1]) & ~(ctrla[0]));// ||
     assign carrymin = (ULA_A[TAM-1] & ULA_B[TAM-1] & ~(ctrla[2]) & ~(ctrla[1]) & ctrla[0]);//                           ||
-    assign carry = carrymin | carrysom  | carryl | carryr; //verifica se carry    
-    assign zero = ULA_OUT ? 1'b1 : 1'b0;      //flag zero ativa quando a saida e zero
+    
+	  assign carry = carrymin | carrysom  | carryl | carryr; //verifica se carry    
+    assign zero = ULA_OUT ? 1'b0 : 1'b1;      //flag zero ativa quando a saida e zero
     assign minus = (((ULA_A[TAM-1] & ULA_B[TAM-1] ) ||Outsum[TAM-1]) && ~(ctrla[2]) && ~(ctrla[1])); //apenas operacoes de soma que retornam menos
 
 
@@ -115,10 +112,12 @@ module NRISC_ULA(
 					3'b111 : ULA_OUT = Outnot;
 				endcase
 			
-				ULA_flags = {minus, zero, carry};  //concatena as flags para enviar para a saida 
+				
 	        end
-	end
 	
+		ULA_flags = {minus, zero, carry};  //concatena as flags para enviar para a saida 
+	end	
+		
 endmodule
 
 
@@ -205,7 +204,7 @@ module rotshr(A, cmd, Outrr);
 	
 	genvar I;
 	generate        
-		for (I=0; I<TAM-2 ; I=I+1) begin: rotater 
+		for (I=0; I<=TAM-2 ; I=I+1) begin: rotater 
 			assign Outrr[I] =A[I+1] ;             
 	end
 	endgenerate
@@ -228,7 +227,7 @@ module rotshl(A, cmd, Outrl);
 	
 	genvar J;
 	generate        
-		for (J=0; J<TAM-2 ; J=J+1) begin: rotatel 
+		for (J=0; J<=TAM-2 ; J=J+1) begin: rotatel 
 			assign Outrl[J+1] =A[J];
 	end
 	endgenerate
@@ -270,7 +269,7 @@ module somaUla(A, B, cin, Outsum);
 		//descricao dos outros full adder com generate
 		genvar I;
 			generate        
-				for (I=1; I<TAM-1 ; I=I+1) begin: fulladers 
+				for (I=1; I<=TAM-1 ; I=I+1) begin: fulladers 
 					
 					assign x[I] = A[I] & Baux[I];
 					assign y[I] = A[I] ^ Baux[I];
