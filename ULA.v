@@ -39,7 +39,7 @@ module NRISC_ULA(
 	input wire [3:0] ULA_ctrl;//4 fios de controle, do bit2 ao bit0 selecao de funcao, bit3 selecao para os rot/shr ou assim por diante
 	//-------------portas de saida--------------------------------------------------------------------
 	output reg [TAM-1:0] ULA_OUT;
-	output reg [2:0] ULA_flags;
+	output wire [2:0] ULA_flags;
 	
 	//-------------fios-registradores-----------------------------------------------------------------
 	
@@ -83,15 +83,15 @@ module NRISC_ULA(
 //linkando os resultados das flags	   
     assign cin = (ctrla== 3'b001) ? 1'b1 : 1'b0; // selecao se eh menos ou mais
 	
-	  assign carryl = (ULA_A[TAM-1] & ~(cmd) & ctrla[2] & ctrla[1] & ~(ctrla[0]));//so eh 1 se a selecao estiver nele e se carry da operacao foi setado
+	assign carryl = (ULA_A[TAM-1] & ~(cmd) & ctrla[2] & ctrla[1] & ~(ctrla[0]));//so eh 1 se a selecao estiver nele e se carry da operacao foi setado
     assign carryr = (ULA_A[0] & ~(cmd) & ctrla[2] & ~(ctrla[1]) & ctrla[0]);//                                       ||
     assign carrysom = (~(ULA_A[TAM-1]) & ~(ULA_B[TAM-1]) & Outsum[TAM-1] & ~(ctrla[2]) & ~(ctrla[1]) & ~(ctrla[0]));// ||
     assign carrymin = (ULA_A[TAM-1] & ULA_B[TAM-1] & ~(ctrla[2]) & ~(ctrla[1]) & ctrla[0]);//                           ||
     
-	  assign carry = carrymin | carrysom  | carryl | carryr; //verifica se carry    
+	assign carry = carrymin | carrysom  | carryl | carryr; //verifica se carry    
     assign zero = ULA_OUT ? 1'b0 : 1'b1;      //flag zero ativa quando a saida e zero
     assign minus = (((ULA_A[TAM-1] & ULA_B[TAM-1] ) ||Outsum[TAM-1]) && ~(ctrla[2]) && ~(ctrla[1])); //apenas operacoes de soma que retornam menos
-
+    assign ULA_flags = {minus, zero, carry};  //concatena as flags para enviar para a saida 
 
 	// registros das saidas 
 	always @ (posedge clk)
@@ -115,7 +115,7 @@ module NRISC_ULA(
 				
 	        end
 	
-		ULA_flags = {minus, zero, carry};  //concatena as flags para enviar para a saida 
+		
 	end	
 		
 endmodule
@@ -137,7 +137,7 @@ module notn(A, Outnot);
 	output wire [TAM-1:0] Outnot;	
 	
 	assign Outnot = ~(A);
-endmodule;
+endmodule
 
 //and
 module andn(A, B, Outand);
@@ -150,7 +150,7 @@ module andn(A, B, Outand);
 	output wire [TAM-1:0] Outand;	
 	
 	assign Outand = A & B;
-endmodule;
+endmodule
 
 
 
@@ -165,7 +165,7 @@ module orn(A, B, Outor);
 	output wire [TAM-1:0] Outor;	
 	
 	assign Outor = A | B;
-endmodule;
+endmodule
 
 
 
@@ -184,7 +184,7 @@ module xorn(A, B, Outxor);
 	assign Outxor = A ^ B;
 	
 
-endmodule;
+endmodule
 
 
 
@@ -209,7 +209,7 @@ module rotshr(A, cmd, Outrr);
 	end
 	endgenerate
 
-endmodule;
+endmodule
 
 
 
@@ -232,7 +232,7 @@ module rotshl(A, cmd, Outrl);
 	end
 	endgenerate
 	
-endmodule;
+endmodule
                
 
 			   
@@ -281,4 +281,4 @@ module somaUla(A, B, cin, Outsum);
 		
 		assign Outsum = suminternal;
 
-endmodule;
+endmodule
