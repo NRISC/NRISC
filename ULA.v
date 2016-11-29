@@ -3,9 +3,9 @@
 /*************************************************************************
  *  descricao do bloco ula                              versao 0.01      *
  *                                                                       *
- *  Developer: Marlon 	                           27-11-2016            *
+ *  Developer: Marlon 	                           28-11-2016            *
  *             marlonsigales@gmail.com                                   *
- *  Corrector: Mariano                             22-11-2016            *
+ *  Corrector: Mariano                             28-11-2016            *
  *             Jean Carlos Scheunemann             22-11-2016            *
  *             jeancarsch@gmail.com                                      *
  *                                                                       *
