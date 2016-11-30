@@ -53,9 +53,9 @@ module registradores(
 					MUX_in15,   // mux input in15
 					
 					clk,
-					rst;  //ativo alto
+					rst);  //ativo alto
 					       
-					);
+					
 
 					
 					
@@ -148,12 +148,12 @@ module registradores(
 	
 	
 	
-always @(posedge clk) begin:	
-	MUX_in0  = rst? 16'b0 :  in0  ;
+always @(posedge clk) begin: registro	
+	  MUX_in0  = rst? 16'b0 :  in0  ;
     MUX_in1  = rst? 16'b0 :  in1  ;
     MUX_in2  = rst? 16'b0 :  in2  ;
     MUX_in3  = rst? 16'b0 :  in3  ;
-	MUX_in4  = rst? 16'b0 :  in4  ;
+	  MUX_in4  = rst? 16'b0 :  in4  ;
     MUX_in5  = rst? 16'b0 :  in5  ;
     MUX_in6  = rst? 16'b0 :  in6  ;
     MUX_in7  = rst? 16'b0 :  in7  ;
