@@ -1,2 +1,0 @@
-# NRISC
-NRISC, a RISC uCore

@@ -1,9 +1,9 @@
 //registradores
 
 /*************************************************************************
- *  descricao do bloco reg                              versao 0.00      *
+ *  descricao do bloco reg                              versao 0.10      *
  *                                                                       *
- *  Developer: Marlon 	                           30-11-2016            *
+ *  Developer: Marlon 	                           31-11-2016            *
  *             marlonsigales@gmail.com                                   *
  *  Corrector: Mariano                             27-11-2016            *
  *             Jean Carlos Scheunemann             27-11-2016            *
@@ -18,39 +18,14 @@
  
 module registradores(
 
-					deMUX_out0,    // demux output out0 
-					deMUX_out1,    // demux output out1
-					deMUX_out2,    // demux output out2
-					deMUX_out3,    // demux output out3
-					deMUX_out4,    // demux output out4
-					deMUX_out5,    // demux output out5
-					deMUX_out6,    // demux output out6
-					deMUX_out7,    // demux output out7
-					deMUX_out8,    // demux output out8
-					deMUX_out9,    // demux output out9
-					deMUX_out10,   // demux output out10
-					deMUX_out11,   // demux output out11
-					deMUX_out12,   // demux output out12
-					deMUX_out13,   // demux output out13
-					deMUX_out14,   // demux output out14
-					deMUX_out15,   // demux output out15
+					reg_in,
+					selecaoin,
+
+					OUTA,
+					selecaoout1,
 					
-					MUX_in0,    // mux input in0 
-					MUX_in1,    // mux input in1
-					MUX_in2,    // mux input in2
-					MUX_in3,    // mux input in3
-					MUX_in4,    // mux input in4
-					MUX_in5,    // mux input in5
-					MUX_in6,    // mux input in6
-					MUX_in7,    // mux input in7
-					MUX_in8,    // mux input in8
-					MUX_in9,    // mux input in9
-					MUX_in10,   // mux input in10
-					MUX_in11,   // mux input in11
-					MUX_in12,   // mux input in12
-					MUX_in13,   // mux input in13
-					MUX_in14,   // mux input in14
-					MUX_in15,   // mux input in15
+					OUTB,
+					selecaoout2,
 					
 					clk,
 					rst);  //ativo alto
@@ -63,48 +38,37 @@ module registradores(
 	//Parameter numero de bits	
 	parameter TAM = 16;
 	//-------------portas de entrada e saida-----------demux entra e mux sai-------------------------------------------------------
-	input wire [TAM-1:0] deMUX_out0;    // demux output out0 
-	input wire [TAM-1:0] deMUX_out1;    // demux output out1
-	input wire [TAM-1:0] deMUX_out2;    // demux output out2
-	input wire [TAM-1:0] deMUX_out3;    // demux output out3
-	input wire [TAM-1:0] deMUX_out4;    // demux output out4
-	input wire [TAM-1:0] deMUX_out5;    // demux output out5
-	input wire [TAM-1:0] deMUX_out6;    // demux output out6
-	input wire [TAM-1:0] deMUX_out7;    // demux output out7
-	input wire [TAM-1:0] deMUX_out8;    // demux output out8
-	input wire [TAM-1:0] deMUX_out9;    // demux output out9
-	input wire [TAM-1:0] deMUX_out10;   // demux output out10
-	input wire [TAM-1:0] deMUX_out11;   // demux output out11
-	input wire [TAM-1:0] deMUX_out12;   // demux output out12
-	input wire [TAM-1:0] deMUX_out13;   // demux output out13
-	input wire [TAM-1:0] deMUX_out14;   // demux output out14
-	input wire [TAM-1:0] deMUX_out15;   // demux output out15
+	input wire	[TAM-1:0] reg_in;
+	input wire	[3:0] selecaoin;
 	
-	output reg [TAM-1:0] MUX_in0;    // mux input in0 
-	output reg [TAM-1:0] MUX_in1;    // mux input in1
-	output reg [TAM-1:0] MUX_in2;    // mux input in2
-	output reg [TAM-1:0] MUX_in3;    // mux input in3
-	output reg [TAM-1:0] MUX_in4;    // mux input in4
-	output reg [TAM-1:0] MUX_in5;    // mux input in5
-	output reg [TAM-1:0] MUX_in6;    // mux input in6
-	output reg [TAM-1:0] MUX_in7;    // mux input in7
-	output reg [TAM-1:0] MUX_in8;    // mux input in8
-	output reg [TAM-1:0] MUX_in9;    // mux input in9
-	output reg [TAM-1:0] MUX_in10;   // mux input in10
-	output reg [TAM-1:0] MUX_in11;   // mux input in11
-	output reg [TAM-1:0] MUX_in12;   // mux input in12
-	output reg [TAM-1:0] MUX_in13;   // mux input in13
-	output reg [TAM-1:0] MUX_in14;   // mux input in14
-	output reg [TAM-1:0] MUX_in15;   // mux input in15
+	input wire	[3:0] selecaooutA;
+	output wire  [TAM-1:0] OUTA;
+					       
+	input wire	[3:0] selecaooutB;
+	output wire  [TAM-1:0] OUTB;
 					
+	input wire	clk;
+	input wire 	rst;
 	
 	
-	//-------------portas de saida--------------------------------------------------------------------
 	
 	//-------------fios-registradores-----------------------------------------------------------------
-	  
-    input wire clk;//seleções
-	input wire rst;
+	reg	[TAM-1:0] reg_0;    // saída dos registradores 0 
+	reg	[TAM-1:0] reg_1;    // saída dos registradores 1
+	reg	[TAM-1:0] reg_2;    // saída dos registradores 2
+	reg	[TAM-1:0] reg_3;    // saída dos registradores 3
+	reg	[TAM-1:0] reg_4;    // saída dos registradores 4
+	reg	[TAM-1:0] reg_5;    // saída dos registradores 5
+	reg	[TAM-1:0] reg_6;    // saída dos registradores 6
+	reg	[TAM-1:0] reg_7;    // saída dos registradores 7
+	reg	[TAM-1:0] reg_8;    // saída dos registradores 8
+	reg	[TAM-1:0] reg_9;    // saída dos registradores 9
+	reg	[TAM-1:0] reg_10;   // saída dos registradores 10
+	reg	[TAM-1:0] reg_11;   // saída dos registradores 11
+	reg	[TAM-1:0] reg_12;   // saída dos registradores 12
+	reg	[TAM-1:0] reg_13;   // saída dos registradores 13
+	reg	[TAM-1:0] reg_14;   // saída dos registradores 14
+	reg	[TAM-1:0] reg_15;   // saída dos registradores 15
 	
 	wire [TAM-1:0] in0  ;
 	wire [TAM-1:0] in1  ;
@@ -124,48 +88,100 @@ module registradores(
 	wire [TAM-1:0] in15 ;
 	
 	
+	wire s03;
+	wire s02;
+	wire s01;
+	wire s00;
 	
-	wire hz;
-	assign hz = {TAM{1'bz}};
+	wire s13;
+	wire s12;
+	wire s11;
+	wire s10;
 	
+	wire s23;
+	wire s22;
+	wire s21;
+	wire s20;
 	
-	assign in0  = (deMUX_out0== hz)? MUX_in0  : deMUX_out0 ; 
-	assign in1  = (deMUX_out1== hz)? MUX_in1  : deMUX_out1 ;
-	assign in2  = (deMUX_out2== hz)? MUX_in2  : deMUX_out2 ;
-	assign in3  = (deMUX_out3== hz)? MUX_in3  : deMUX_out3 ;
-	assign in4  = (deMUX_out4== hz)? MUX_in4  : deMUX_out4 ;
-	assign in5  = (deMUX_out5== hz)? MUX_in5  : deMUX_out5 ;
-	assign in6  = (deMUX_out6== hz)? MUX_in6  : deMUX_out6 ;
-	assign in7  = (deMUX_out7== hz)? MUX_in7  : deMUX_out7 ;
-	assign in8  = (deMUX_out8== hz)? MUX_in8  : deMUX_out8 ;
-	assign in9  = (deMUX_out9== hz)? MUX_in9  : deMUX_out9 ;
-	assign in10 = (deMUX_out10==hz)? MUX_in10 : deMUX_out10 ;
-	assign in11 = (deMUX_out11==hz)? MUX_in11 : deMUX_out11 ;
-	assign in12 = (deMUX_out12==hz)? MUX_in12 : deMUX_out12 ;
-	assign in13 = (deMUX_out13==hz)? MUX_in13 : deMUX_out13 ;
-	assign in14 = (deMUX_out14==hz)? MUX_in14 : deMUX_out14 ;
-	assign in15 = (deMUX_out15==hz)? MUX_in15 : deMUX_out15 ;
+	assign {s03,s02,s01,s00}=selecaoin;
+	assign {s13,s12,s11,s10}=selecaooutA;
+	assign {s23,s22,s21,s20}=selecaooutB;
+
+//demutiplexação da entrada	
+	assign in0  = (~(s03)&~(s02)&~(s01)&~(s00))? reg_in : in0  ; 
+	assign in1  = (~(s03)&~(s02)&~(s01)&s00   )? reg_in : in1  ;
+	assign in2  = (~(s03)&~(s02)&s01&~(s00)   )? reg_in : in2  ;
+	assign in3  = (~(s03)&~(s02)&s01&s00      )? reg_in : in3  ;
+	assign in4  = (~(s03)&s02&~(s01)&~(s00)   )? reg_in : in4  ;
+	assign in5  = (~(s03)&s02&~(s01)&s00      )? reg_in : in5  ;
+	assign in6  = (~(s03)&s02&s01&~(s00)      )? reg_in : in6  ;
+	assign in7  = (~(s03)&s02&s01&s00         )? reg_in : in7  ;
+	assign in8  = (s03&~(s02)&~(s01)&~(s00)   )? reg_in : in8  ;
+	assign in9  = (s03&~(s02)&~(s01)&s00      )? reg_in : in9  ;
+	assign in10 = (s03&~(s02)&s01&~(s00)      )? reg_in : in10 ;
+	assign in11 = (s03&~(s02)&s01&s00         )? reg_in : in11 ;
+	assign in12 = (s03&s02&~(s01)&~(s00)      )? reg_in : in12 ;
+	assign in13 = (s03&s02&~(s01)&s00         )? reg_in : in13 ;
+	assign in14 = (s03&s02&s01&~(s00)         )? reg_in : in14 ;
+	assign in15 = (s03&s02&s01&s00            )? reg_in : in15 ;
 	
+//mutiplexação das saídas	
+		assign OUTA   = (~(s13)&~(s12)&~(s11)&~(s10))& reg_0  |
+					    (~(s13)&~(s12)&~(s11)&s10   )& reg_1  |
+					    (~(s13)&~(s12)&s11&~(s10)   )& reg_2  |
+					    (~(s13)&~(s12)&s11&s10      )& reg_3  |
+					    (~(s13)&s12&~(s11)&~(s10)   )& reg_4  |
+					    (~(s13)&s12&~(s11)&s10      )& reg_5  |
+					    (~(s13)&s12&s11&~(s10)      )& reg_6  |
+					    (~(s13)&s12&s11&s10         )& reg_7  |
+					    (s13&~(s12)&~(s11)&~(s10)   )& reg_8  |
+					    (s13&~(s12)&~(s11)&s10      )& reg_9  |
+					    (s13&~(s12)&s11&~(s10)      )& reg_10 |
+					    (s13&~(s12)&s11&s10         )& reg_11 |
+					    (s13&s12&~(s11)&~(s10)      )& reg_12 |
+					    (s13&s12&~(s11)&s10         )& reg_13 |
+					    (s13&s12&s11&~(s10)         )& reg_14 |
+					    (s13&s12&s11&s10            )& reg_15 ;
+					   
+		assign OUTB   = (~(s23)&~(s22)&~(s21)&~(s20))& reg_0  |
+					    (~(s23)&~(s22)&~(s21)&s20   )& reg_1  |
+					    (~(s23)&~(s22)&s21&~(s20)   )& reg_2  |
+					    (~(s23)&~(s22)&s21&s20      )& reg_3  |
+					    (~(s23)&s22&~(s21)&~(s20)   )& reg_4  |
+					    (~(s23)&s22&~(s21)&s20      )& reg_5  |
+					    (~(s23)&s22&s21&~(s20)      )& reg_6  |
+					    (~(s23)&s22&s21&s20         )& reg_7  |
+					    (s23&~(s22)&~(s21)&~(s20)   )& reg_8  |
+					    (s23&~(s22)&~(s21)&s20      )& reg_9  |
+					    (s23&~(s22)&s21&~(s20)      )& reg_10 |
+					    (s23&~(s22)&s21&s20         )& reg_11 |
+					    (s23&s22&~(s21)&~(s20)      )& reg_12 |
+					    (s23&s22&~(s21)&s20         )& reg_13 |
+					    (s23&s22&s21&~(s20)         )& reg_14 |
+					    (s23&s22&s21&s20            )& reg_15 ;				   
 	
+
+//------------ atualização dos registros ------------	
+	always @(posedge clk) begin: registro	
+	reg_0  = rst? 16'b0 :  in0  ;
+    reg_1  = rst? 16'b0 :  in1  ;
+    reg_2  = rst? 16'b0 :  in2  ;
+    reg_3  = rst? 16'b0 :  in3  ;
+	reg_4  = rst? 16'b0 :  in4  ;
+    reg_5  = rst? 16'b0 :  in5  ;
+    reg_6  = rst? 16'b0 :  in6  ;
+    reg_7  = rst? 16'b0 :  in7  ;
+    reg_8  = rst? 16'b0 :  in8  ;
+    reg_9  = rst? 16'b0 :  in9  ;
+    reg_10 = rst? 16'b0 :  in10 ;
+    reg_11 = rst? 16'b0 :  in11 ;
+    reg_12 = rst? 16'b0 :  in12 ;
+    reg_13 = rst? 16'b0 :  in13 ;
+    reg_14 = rst? 16'b0 :  in14 ;
+    reg_15 = rst? 16'b0 :  in15 ;
+	end	
 	
-always @(posedge clk) begin: registro	
-	  MUX_in0  = rst? 16'b0 :  in0  ;
-    MUX_in1  = rst? 16'b0 :  in1  ;
-    MUX_in2  = rst? 16'b0 :  in2  ;
-    MUX_in3  = rst? 16'b0 :  in3  ;
-	  MUX_in4  = rst? 16'b0 :  in4  ;
-    MUX_in5  = rst? 16'b0 :  in5  ;
-    MUX_in6  = rst? 16'b0 :  in6  ;
-    MUX_in7  = rst? 16'b0 :  in7  ;
-    MUX_in8  = rst? 16'b0 :  in8  ;
-    MUX_in9  = rst? 16'b0 :  in9  ;
-    MUX_in10 = rst? 16'b0 :  in10 ;
-    MUX_in11 = rst? 16'b0 :  in11 ;
-    MUX_in12 = rst? 16'b0 :  in12 ;
-    MUX_in13 = rst? 16'b0 :  in13 ;
-    MUX_in14 = rst? 16'b0 :  in14 ;
-    MUX_in15 = rst? 16'b0 :  in15 ;
-end	
-	
-	
-endmodule	
+endmodule		
+
+
+
