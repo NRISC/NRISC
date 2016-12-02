@@ -22,10 +22,10 @@ module registradores(
 					selecaoin,
 
 					OUTA,
-					selecaoout1,
+					selecaooutA,
 					
 					OUTB,
-					selecaoout2,
+					selecaooutB,
 					
 					clk,
 					rst);  //ativo alto
@@ -107,7 +107,7 @@ module registradores(
 	assign {s13,s12,s11,s10}=selecaooutA;
 	assign {s23,s22,s21,s20}=selecaooutB;
 
-//demutiplexação da entrada	
+//demutiplexação da entrada	                             se enable entrar colocar ele nas ands aqui 
 	assign in0  = (~(s03)&~(s02)&~(s01)&~(s00))? reg_in : in0  ; 
 	assign in1  = (~(s03)&~(s02)&~(s01)&s00   )? reg_in : in1  ;
 	assign in2  = (~(s03)&~(s02)&s01&~(s00)   )? reg_in : in2  ;
@@ -163,11 +163,11 @@ module registradores(
 
 //------------ atualização dos registros ------------	
 	always @(posedge clk) begin: registro	
-	reg_0  = rst? 16'b0 :  in0  ;
+	  reg_0  = rst? 16'b0 :  in0  ;
     reg_1  = rst? 16'b0 :  in1  ;
     reg_2  = rst? 16'b0 :  in2  ;
     reg_3  = rst? 16'b0 :  in3  ;
-	reg_4  = rst? 16'b0 :  in4  ;
+	  reg_4  = rst? 16'b0 :  in4  ;
     reg_5  = rst? 16'b0 :  in5  ;
     reg_6  = rst? 16'b0 :  in6  ;
     reg_7  = rst? 16'b0 :  in7  ;
