@@ -13,7 +13,7 @@ parameter TAM = 16;
 
 reg signed [TAM-1:0] ULA_A;
 reg signed [TAM-1:0] ULA_B;
-reg clk, rst;
+reg clk, rst, incdec, cmp2;
 reg [3:0] ULA_ctrl;
 
 wire signed [TAM-1:0] ULA_OUT;
@@ -27,9 +27,12 @@ NRISC_ULA DUT
   .ULA_B (ULA_B),
   .clk (clk),
   .rst (rst),
+  .incdec(incdec),
+  .cmp2(cmp2),
   .ULA_ctrl (ULA_ctrl),
   .ULA_OUT (ULA_OUT),
   .ULA_flags (ULA_flags)
+  
   );
 
 // clock generation
@@ -40,6 +43,8 @@ NRISC_ULA DUT
 initial ULA_A = 16'b1010101010101010;
 initial ULA_B = 16'b0101010101010101;
 initial rst = 1; // conforme visto no codigo do Marlon reset e ativo em baixo
+initial incdec = 0;
+initial cmp2= 0;
 
 reg [TAM-1:0] amaisb;
 reg [TAM-1:0] amenosb; 
