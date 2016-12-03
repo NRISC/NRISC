@@ -27,7 +27,7 @@ module registradores(
                     reg_out_B,
                     RF2,
                     
-                    W,     //escrever
+                    W,     //escrever, posedge
                     rst);  //ativo alto
                            
                     
