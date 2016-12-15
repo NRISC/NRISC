@@ -1,7 +1,7 @@
 //ULA_TB 2
 
 /*************************************************************************
- *  descricao do testbench da ula                   versao 2.01          *
+ *  descricao do testbench da ula                   versao 2.02          *
  *                                                                       *
  *  Developer: Mariano                             15-12-2016            *
  *             marianobw@hotmail.com                                     *
@@ -109,61 +109,61 @@ always @ ( posedge clk ) begin
 		4'b0000: begin
 					if (ULA_OUT==amaisb)begin
 					end else begin
-					$display($time,"\n\n ADD ERROR     \n resultado esperado %b",amaisb,"  \n resultado recebido %b ", ULA_OUT);
+					$display("\n \n", $time,"\n ADD ERROR     \n resultado esperado %b",amaisb,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
 		4'b0001: begin
 					if (ULA_OUT==amenosb)begin
 					end else begin
-					$display($time,"\n\n SUB ERROR     \n resultado esperado %b",amenosb,"  \n resultado recebido %b ", ULA_OUT);
+					$display("\n \n", $time,"\n SUB ERROR     \n resultado esperado %b",amenosb,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
 		4'b0010: begin
 					if (ULA_OUT==aandb)begin
 					end else begin
-					$display($time,"\n\n AND ERROR     \n resultado esperado %b",aandb,"  \n resultado recebido %b ", ULA_OUT);
+					$display("\n \n", $time,"\n AND ERROR     \n resultado esperado %b",aandb,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
 		4'b0011: begin
 					if (ULA_OUT==aorb)begin
 					end else begin
-					$display($time,"\n\n OR ERROR     \n resultado esperado %b",aorb,"  \n resultado recebido %b ", ULA_OUT);
+					$display("\n \n", $time,"\n OR ERROR     \n resultado esperado %b",aorb,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
 		4'b0100: begin
 					if (ULA_OUT==axorb)begin
 					end else begin
-					$display($time,"\n\n XOR ERROR     \n resultado esperado %b",axorb,"  \n resultado recebido %b ", ULA_OUT);
+					$display("\n \n", $time,"\n XOR ERROR     \n resultado esperado %b",axorb,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
 		4'b0101: begin
 					if (ULA_OUT==ashr)begin
 					end else begin
-					$display($time,"\n\n ADD ERROR     \n resultado esperado %b",ashr,"  \n resultado recebido %b ", ULA_OUT);
+					$display("\n \n", $time,"\n SHR ERROR     \n resultado esperado %b",ashr,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
 		4'b1101: begin
 					if (ULA_OUT==artr)begin
 					end else begin
-					$display($time,"\n\n ADD ERROR     \n resultado esperado %b",artr,"  \n resultado recebido %b ", ULA_OUT);
+					$display("\n \n", $time,"\n RTR ERROR     \n resultado esperado %b",artr,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
 		4'b0110: begin
 					if (ULA_OUT==ashl)begin
 					end else begin
-					$display($time,"\n\n ADD ERROR     \n resultado esperado %b",ashl,"  \n resultado recebido %b ", ULA_OUT);
+					$display("\n \n", $time,"\n SHL ERROR     \n resultado esperado %b",ashl,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
 		4'b1110: begin
 					if (ULA_OUT==artl)begin
 					end else begin
-					$display($time,"\n\n ADD ERROR     \n resultado esperado %b",artl,"  \n resultado recebido %b ", ULA_OUT);
+					$display("\n \n", $time,"\n RTL ERROR     \n resultado esperado %b",artl,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
 		4'b0111: begin
 					if (ULA_OUT==anot)begin
 					end else begin
-					$display($time,"\n\n ADD ERROR     \n resultado esperado %b",anot,"  \n resultado recebido %b ", ULA_OUT);
+					$display("\n \n", $time,"\n NOT ERROR     \n resultado esperado %b",anot,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
 		
