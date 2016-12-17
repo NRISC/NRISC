@@ -3,7 +3,7 @@
 /*************************************************************************
  *  descricao do bloco ula                              versao 0.1      *
  *                                                                       *
- *  Developer: Marlon                              01-12-2016            *
+ *  Developer: Marlon                              15-12-2016            *
  *             marlonsigales@gmail.com                                   *
  *  Corrector: Mariano                             28-11-2016            *
  *             Jean Carlos Scheunemann             22-11-2016            *
@@ -11,6 +11,7 @@
  *                                                                       *
  * soma(inc, twc), sub(dec), xor, and, or, not, shr(rtr), shl(rtl)       *
  * selecoes incdec e comp2 inclusas; sem registradores, menor tempo      *
+ * shift não sinalizado                                                  *
  *************************************************************************/ 
 
  
@@ -213,8 +214,11 @@ module rotshr(A, cmd, Outrr);
     output wire [TAM-1:0] Outrr;    
 
     
-        
-    assign Outrr[TAM-1] =  cmd ? A[0] : A[TAM-1]; //se rotate carrega o lsb pro msb
+        //se rotate carrega o lsb pro msb
+    //assign Outrr[TAM-1] =  cmd ? A[0] : A[TAM-1]; //sinalizado
+	assign Outrr[TAM-1] =  cmd ? A[0] : 1'b0 ; //não sinalizado
+	
+	
     
     genvar I;
     generate        
