@@ -16,33 +16,38 @@
 
 `timescale 1 ns / 1 ns
 module NRISC_CPU(
-								CPU_InstructionIN,
-								CPU_ctrl,
-								CPU_Status,
-								CPU_ULA_ctrl,
-								CPU_ULA_flags,
-								CPU_ULAMux_inc_dec,
-								CPU_ULAMux_comp2,
-								CPU_REG_RF1,
-								CPU_REG_RF2,
-								CPU_REG_RD,
-								CPU_REG_write,
-								CPU_DATA_write,
-								CPU_DATA_load,
-								CPU_DATA_ADDR_clk,
-								CPU_STACK_ctrl,
-								CPU_PC_ctrl,
-								CPU_PC_clk,
-								clk,
-								rst
+								CPU_InstructionIN,				//instruction input
+								CPU_InstructionToREGMux,	//MUX ctrl of instruction in to REGs
+								CPU_ctrl,									//CPU external input ctrl BUS
+								CPU_Status,								//CPU status output
+								CPU_ULA_ctrl,							//ULA output ctrl BUS
+								CPU_ULA_flags,						//ULA flags input
+								CPU_ULAMux_inc_dec,				//ULA Inc/dec output MUX ctrl
+								CPU_ULAMux_comp2,					//ULA 2'comp output MUX ctrl
+								CPU_REG_RF1,							//REGs to ULA ctrl 1
+								CPU_REG_RF2,							//REGs to ULA ctrl 2
+								CPU_REG_RD,								//REGs inputs ctrl
+								CPU_REG_write,						//REGs write ctrl
+								CPU_DATA_write,						//DATA write ctrl
+								CPU_DATA_load,						//DATA load ctrl
+								CPU_DATA_ADDR_clk,				//DATA clk
+								CPU_DATA_REGMux,					//DATA to REGs MUX
+								CPU_STACK_ctrl,						//CPU to STACK ctrl
+								CPU_PC_ctrl,							//CPU to PC ctrl MUX
+								CPU_PC_clk,								//PC clk
+								clk,											//Main clk source
+								rst												//general rst
 								);
 
 		//CPU
 		input wire clk;
 		input wire rst;
-		input wire [15:0] CPU_InstructionIN;
 		input wire [2:0] CPU_ctrl;
 		output reg [2:0] CPU_Status;
+		//Instruction
+		input wire [15:0] CPU_InstructionIN;
+		output reg CPU_InstructionToREGMux;
+
 		//ULA
 		input wire [2:0] CPU_ULA_flags;
 		output reg [3:0] CPU_ULA_ctrl;
@@ -64,7 +69,7 @@ module NRISC_CPU(
 		output reg CPU_PC_clk;
 
 		//Internal REGs and WIREs
-		reg [2:0] CPU_Instruction_Status;
+		//reg [2:0] CPU_Instruction_Status;
 		/*===================================================
 		* 			Reset Tree
 		*===================================================*/
@@ -90,6 +95,7 @@ module NRISC_CPU(
 				CPU_PC_clk<=0;
 				//REGs write rst
 				CPU_REG_write<=0;
+
 				/*
 				*		instruction decode state machine
 				*/
@@ -127,8 +133,11 @@ module NRISC_CPU(
 														CPU_REG_RD<= CPU_InstructionIN[11:8];
 														CPU_REG_RF1<=CPU_InstructionIN[7:4];
 														CPU_REG_RF2<=CPU_InstructionIN[3:0];
+														//REG MUX's config
+														CPU_InstructionToREGMux<=0;
+														CPU_DATA_REGMux<=1;
 														//update Status
-														CPU_Instruction_Status<=1;
+														CPU_Status<=1;
 												end;
 									4'h2: begin	//SW instruction
 														//Calculates the memory address
@@ -141,11 +150,18 @@ module NRISC_CPU(
 														CPU_REG_RF1<=CPU_InstructionIN[7:4];
 														CPU_REG_RF2<=CPU_InstructionIN[3:0];
 														//update Status(CPU continue to work on the next clk pulse)
-														CPU_Instruction_Status<=1;
+														CPU_Status<=1;
 
 												end;
 									4'h3: begin	//LI instruction
-														//TODO
+														//REG config
+														CPU_REG_RD<= CPU_InstructionIN[11:8];
+														//REG MUX's config
+														CPU_InstructionToREGMux<=1;
+														CPU_DATA_REGMux<=0;
+														//Status update
+														CPU_Status<=0;
+
 												end;
 									// jump instructions
 									4'h4: begin	//JMP instruction//TODO
@@ -170,6 +186,9 @@ module NRISC_CPU(
 														CPU_REG_RD<= CPU_InstructionIN[11:8];
 														CPU_REG_RF1<=CPU_InstructionIN[7:4];
 														CPU_REG_RF2<=CPU_InstructionIN[3:0];
+														//REG MUX's config
+														CPU_InstructionToREGMux<=0;
+														CPU_DATA_REGMux<=0;
 														//update Status
 														CPU_Status<=0;
 												end;
@@ -182,6 +201,9 @@ module NRISC_CPU(
 														CPU_REG_RD<= CPU_InstructionIN[11:8];
 														CPU_REG_RF1<=CPU_InstructionIN[7:4];
 														CPU_REG_RF2<=CPU_InstructionIN[3:0];
+														//REG MUX's config
+														CPU_InstructionToREGMux<=0;
+														CPU_DATA_REGMux<=0;
 														//update Status
 														CPU_Status<=0;
 												end;
@@ -194,6 +216,9 @@ module NRISC_CPU(
 														CPU_REG_RD<= CPU_InstructionIN[11:8];
 														CPU_REG_RF1<=CPU_InstructionIN[7:4];
 														CPU_REG_RF2<=CPU_InstructionIN[3:0];
+														//REG MUX's config
+														CPU_InstructionToREGMux<=0;
+														CPU_DATA_REGMux<=0;
 														//update Status
 														CPU_Status<=0;
 												end;
@@ -206,6 +231,9 @@ module NRISC_CPU(
 														CPU_REG_RD<= CPU_InstructionIN[11:8];
 														CPU_REG_RF1<=CPU_InstructionIN[7:4];
 														CPU_REG_RF2<=CPU_InstructionIN[3:0];
+														//REG MUX's config
+														CPU_InstructionToREGMux<=0;
+														CPU_DATA_REGMux<=0;
 														//update Status
 														CPU_Status<=0;
 												end;
@@ -218,6 +246,9 @@ module NRISC_CPU(
 														CPU_REG_RD<= CPU_InstructionIN[11:8];
 														CPU_REG_RF1<=CPU_InstructionIN[7:4];
 														CPU_REG_RF2<=CPU_InstructionIN[3:0];
+														//REG MUX's config
+														CPU_InstructionToREGMux<=0;
+														CPU_DATA_REGMux<=0;
 														//update Status
 														CPU_Status<=0;
 												end;
@@ -229,6 +260,9 @@ module NRISC_CPU(
 														//REG config
 														CPU_REG_RD<= CPU_InstructionIN[11:8];
 														CPU_REG_RF1<=CPU_InstructionIN[7:4];
+														//REG MUX's config
+														CPU_InstructionToREGMux<=0;
+														CPU_DATA_REGMux<=0;
 														//update Status
 														CPU_Status<=0;
 												end;
@@ -240,6 +274,9 @@ module NRISC_CPU(
 														//REG config
 														CPU_REG_RD<= CPU_InstructionIN[11:8];
 														CPU_REG_RF1<=CPU_InstructionIN[7:4];
+														//REG MUX's config
+														CPU_InstructionToREGMux<=0;
+														CPU_DATA_REGMux<=0;
 														//update Status
 														CPU_Status<=0;
 												end;
@@ -247,6 +284,9 @@ module NRISC_CPU(
 														//REG config
 														CPU_REG_RD<= CPU_InstructionIN[11:8];
 														CPU_REG_RF1<=CPU_InstructionIN[7:4];
+														//REG MUX's config
+														CPU_InstructionToREGMux<=0;
+														CPU_DATA_REGMux<=0;
 														//update Status
 														CPU_Status<=0;
 														//ULA config
@@ -316,11 +356,14 @@ module NRISC_CPU(
 		*				Instruction update Memory and REGs
 		*====================================================*/
 		always @ ( negedge clk ) begin
-				CPU_Status<=CPU_Instruction_Status;
-				case(CPU_Instruction_Status)
+			case(CPU_Status)
 						3'h0:begin//Update PC, PC++
 									CPU_PC_clk<=1;//PC update clk
-									CPU_REG_write<=CPU_InstructionIN[15]||(CPU_InstructionIN[15:12]==4'h1); // write regs=1 if ULA or Load instruction
+									CPU_REG_write=	CPU_InstructionIN[15]||	// ULA instruction
+																	(CPU_InstructionIN[15:12]==4'h1)||	//Load instruction
+																	(CPU_InstructionIN[15:12]==4'h3); 	//Load imediate instruction
+									cpu_da
+
 								end;
 						3'h1:begin//LOAD STORE instruction
 									CPU_DATA_ADDR_clk=(CPU_InstructionIN[15:12]==4'h1)||(CPU_InstructionIN[15:12]==4'h2);
