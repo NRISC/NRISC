@@ -46,7 +46,6 @@ module NRISC_CPU(
 		//Instruction
 		input wire [15:0] CPU_InstructionIN;
 		output reg CPU_InstructionToREGMux;
-
 		//ULA
 		input wire [2:0] CPU_ULA_flags;
 		output reg [3:0] CPU_ULA_ctrl;
@@ -60,13 +59,15 @@ module NRISC_CPU(
 		output reg CPU_DATA_write;
 		output reg CPU_DATA_load;
 		output reg CPU_DATA_ADDR_clk;
+		output reg CPU_DATA_REGMux;
 		//STACK
-		output reg CPU_STACK_ctrl;
+		output reg [1:0] CPU_STACK_ctrl;
 		//PC
 		output wire [1:0] CPU_PC_ctrl;
 		output reg CPU_PC_clk;
 
 		//Internal REGs and WIREs
+		//reg I;
 		//reg [2:0] CPU_Instruction_Status;
 		/*===================================================
 		* 			Reset Tree
@@ -105,19 +106,67 @@ module NRISC_CPU(
 								case (CPU_InstructionIN[15:12])
 									4'h0: begin	//TODO CPU instructions
 															//TODO
-														case(CPU_InstructionIN[2:0])
-																3'h0:begin//NOT instruction
+														case(CPU_InstructionIN[11:8])
+																4'h0:	begin//NOT instruction
 
-																		end;
-																3'h1:begin//TWC instruction//TODO ver este
+																			end;
+																4'h1:	begin//HALT
 
-																		end;
-																3'h2:begin//INC instruction
+																			end;
+																4'h2:	begin//WAIT
 
-																		end;
-																3'h3:begin//DEC instruction
+																			end;
+																4'h3:	begin//SLEEP
 
-																		end;
+																			end;
+																4'h4:	begin//CALL
+																				//ULA config ADD mode
+																				CPU_ULA_ctrl<=4'h0;
+																				CPU_ULAMux_inc_dec<=0;
+																				//REG config
+																				//CPU_REG_RD<= CPU_InstructionIN[11:8];
+																				CPU_REG_RF1<=CPU_InstructionIN[7:4];
+																				CPU_REG_RF2<=CPU_InstructionIN[3:0];
+																				//REG MUX's config
+																				CPU_InstructionToREGMux<=0;
+																				CPU_DATA_REGMux<=0;
+																				//update Status
+																				CPU_Status<=2;
+																				//update STACK
+																				CPU_STACK_ctrl=2'b01;
+																			end
+																4'h5:	begin//RET
+																				//ULA config ADD mode
+																				CPU_ULA_ctrl<=4'h0;
+																				CPU_ULAMux_inc_dec<=0;
+																				//REG config
+																				//CPU_REG_RD<= CPU_InstructionIN[11:8];
+																				CPU_REG_RF1<=CPU_InstructionIN[7:4];
+																				CPU_REG_RF2<=CPU_InstructionIN[3:0];
+																				//REG MUX's config
+																				CPU_InstructionToREGMux<=0;
+																				CPU_DATA_REGMux<=0;
+																				//update Status
+																				CPU_Status<=2;
+																				//update STACK
+																				CPU_STACK_ctrl=2'b10;
+																			end
+																4'h6: begin//RETI
+																				//ULA config ADD mode
+																				CPU_ULA_ctrl<=4'h0;
+																				CPU_ULAMux_inc_dec<=0;
+																				//REG config
+																				//CPU_REG_RD<= CPU_InstructionIN[11:8];
+																				CPU_REG_RF1<=CPU_InstructionIN[7:4];
+																				CPU_REG_RF2<=CPU_InstructionIN[3:0];
+																				//REG MUX's config
+																				CPU_InstructionToREGMux<=0;
+																				CPU_DATA_REGMux<=0;
+																				//update Status
+																				CPU_Status<=2;
+																				//update STACK
+																				CPU_STACK_ctrl=2'b10;
+																			end
 														endcase
 												end;
 									//Memory instructions
