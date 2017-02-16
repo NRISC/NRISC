@@ -84,7 +84,12 @@ module NRISC_CPU(
 		/*===================================================
 		*				instruction decode
 		*====================================================*/
+<<<<<<< HEAD
 		//assign CPU_DATA_load=CPU_InstructionIN[15];
+=======
+		always@(*)
+			CPU_DATA_load=CPU_InstructionIN[15];
+>>>>>>> origin/CPU-design
 
 		always @ ( posedge clk ) begin
 				/*
@@ -434,7 +439,8 @@ module NRISC_CPU(
 						end
 				endcase
 
-		end
+				endcase
+			end
 
 		/*===================================================
 		*				Instruction update Memory and REGs
@@ -459,4 +465,4 @@ module NRISC_CPU(
 				endcase
 
 		end
-endmodule;
+endmodule
