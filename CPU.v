@@ -163,7 +163,7 @@ module NRISC_CPU(
 																				CPU_InstructionToREGMux<=0;
 																				CPU_DATA_REGMux<=0;
 																				//update Status
-																				CPU_Status<=2;
+																				CPU_Status<=3;
 																				//update STACK
 																				CPU_STACK_ctrl=2'b10;
 																			end
@@ -430,6 +430,7 @@ module NRISC_CPU(
 								/*
 								*  RETs and RETIs
 								*/
+								CPU_Status<=0;
 						end
 
 		end
