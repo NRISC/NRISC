@@ -72,8 +72,22 @@ module NRISC_CPU(
 		/*===================================================
 		* 			Reset Tree
 		*===================================================*/
-		always @ ( rst ) begin
-				CPU_Status=0;
+		always @ ( negedge rst ) begin
+				CPU_Status<=0;
+				CPU_InstructionToREGMux<=0;
+				CPU_ULA_ctrl<=0;
+				CPU_ULAMux_inc_dec=0;
+				CPU_REG_RD<=0;
+				CPU_REG_RF1<=0;
+				CPU_REG_RF2<=0;
+				CPU_REG_write<=0;
+				CPU_DATA_write<=0;
+				CPU_DATA_load<=0;
+				CPU_DATA_ADDR_clk<=0;
+				CPU_DATA_REGMux<=0;
+				CPU_STACK_ctrl<=0;
+				CPU_PC_clk<=0;
+
 				//TODO reset tree
 		end
 		/*===================================================
@@ -84,12 +98,7 @@ module NRISC_CPU(
 		/*===================================================
 		*				instruction decode
 		*====================================================*/
-<<<<<<< HEAD
 		//assign CPU_DATA_load=CPU_InstructionIN[15];
-=======
-		always@(*)
-			CPU_DATA_load=CPU_InstructionIN[15];
->>>>>>> origin/CPU-design
 
 		always @ ( posedge clk ) begin
 				/*
@@ -439,8 +448,7 @@ module NRISC_CPU(
 						end
 				endcase
 
-				endcase
-			end
+		end
 
 		/*===================================================
 		*				Instruction update Memory and REGs
@@ -465,4 +473,4 @@ module NRISC_CPU(
 				endcase
 
 		end
-endmodule
+endmodule;

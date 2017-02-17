@@ -10,18 +10,18 @@
  *	Corrector: Jean Carlos Scheunemann             DD-MM-AAAA            *
  *             jeancarsch@gmail.com                                      *
  *                                                                       *
- *************************************************************************/ 
+ *************************************************************************/
  `timescale 1 ns / 1 ns  // only for cadence, comment in modelSim
- 
- 
- 
+
+
+
 module CPU_TB;
 
 localparam integer PERIOD = 10;
 
 parameter TAM = 16;
 
-		reg [15:0] CPU_InstructionIN;   //
+		wire [15:0] CPU_InstructionIN;   //
 		wire CPU_InstructionToREGMux;
 		reg [2:0] CPU_ctrl;             //
 		wire [1:0] CPU_Status;
@@ -36,8 +36,8 @@ parameter TAM = 16;
 		wire CPU_DATA_load;
 		wire CPU_DATA_ADDR_clk;
 		wire CPU_DATA_REGMux;
-		wire CPU_STACK_ctrl;
-		wire [1:0] CPU_PC_ctrl;         // 
+		wire [1:0]CPU_STACK_ctrl;
+		wire [1:0] CPU_PC_ctrl;         //
 		wire CPU_PC_clk;
 		reg clk;
 		reg rst;
@@ -66,11 +66,11 @@ NRISC_CPU DUT(
 			rst							//general rst
 			);
 
-	    
 
-	
-	
-	
+
+
+
+
 // clock generation
   initial clk = 1'b0;
   always #(PERIOD/2) clk = ~clk;
@@ -86,176 +86,181 @@ initial rf2 = 4'b0101;
 initial rd  = 4'b1001;
 
 initial CPU_ctrl = 3'b000;  // ainda nao implementado na CPU
-initial CPU_ULA_flags = 3'b000;  // 
+initial CPU_ULA_flags = 3'b000;  //
 
 
-always @(negedge clk)
-	CPU_InstructionIN={opcode,rd,rf1,rf2};
+//always @(negedge clk)
+assign	CPU_InstructionIN={opcode,rd,rf1,rf2};
 
 initial begin
 $display(" \n\n TESTE operacao com ULA SIMPLES" , $time," <-time" );
 // soma
+  //@(posedge rst);//@(negedge rst);
+
 	@(posedge clk);opcode= 4'b1000;
+  rst=~rst;
+  #1 rst=~rst;
 	@(posedge clk);opcode= 4'b1000;
-	
+
     @(negedge clk) opcode= 4'b1000;
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0000 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
+
+					#1 if ( CPU_ULA_ctrl==4'b0000 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
 						$display(" \n\n soma OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n soma erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1," reg_rf2=" , CPU_REG_RF2, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display("  esperava-se: ula_ctrl= 0x0, incdec=0, reg_rf1=" , rf1, " reg_rf2=" , rf2, "  reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	end
-//subtração	
+//subtração
 	@(negedge clk) opcode= 4'b1001;
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0001 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0001 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
 						$display(" \n\n sub OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n sub erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1," reg_rf2=" , CPU_REG_RF2, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display("  esperava-se: ula_ctrl= 0x1, incdec=0, reg_rf1=" , rf1,"  reg_rf2=" , rf2, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	end
 //and
 @(negedge clk) opcode= 4'b1010;
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0010 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0010 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
 						$display(" \n\n and OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n and erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1," reg_rf2=" , CPU_REG_RF2, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x2, incdec=0, reg_rf1=" , rf1," reg_rf2=" , rf2, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	end
 
 
 //or
 	@(negedge clk) opcode= 4'b1011;
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0011 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0011 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
 						$display(" \n\n or OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n or erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1," reg_rf2=" , CPU_REG_RF2, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x3, incdec=0, reg_rf1=" , rf1," reg_rf2=" , rf2, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	end
 //xor
 	@(negedge clk) opcode= 4'b1100;
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0100 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0100 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
 						$display(" \n\n xor OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n xor erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1," reg_rf2=" , CPU_REG_RF2, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x4, incdec=0, reg_rf1=" , rf1," reg_rf2=" , rf2, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	end
 
 
 
 //shr
-@(negedge clk)begin 
+@(negedge clk)begin
 		opcode= 4'b1101;
 		rf2= 4'b0000;
-	end	
-	
+	end
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0101 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0101 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n shr OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n shr erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x5, incdec=0, reg_rf1=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	end
 //rtr
 @(negedge clk)	rf2= 4'b0001;
 
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b1101 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b1101 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n rtr OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n rtr erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0xd, incdec=0, reg_rf1=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	end
-	
+
 //shl
-@(negedge clk)begin 
+@(negedge clk)begin
 		opcode= 4'b1110;
 		rf2= 4'b0000;
-	end	
-	
+	end
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0110 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0110 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n shl OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n shl erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x6, incdec=0, reg_rf1=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	end
-	
-	
+
+
 //rtl
 @(negedge clk) rf2= 4'b0001;
-	
-	
+
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b1110 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b1110 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n rtl OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n rtl erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0xe, incdec=0, reg_rf1=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	end
 
 
 //not
-	@(negedge clk)begin 
+	@(negedge clk)begin
 		opcode= 4'b1111;
 		rf2= 4'b0000;
-	end	
-	
+	end
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0111 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0111 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n not OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n not erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x7, incdec=0, reg_rf1=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	end
-	
+
 //twc
 	@(negedge clk) rf2 = 4'b0001;
-	
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0001 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==4'b0000 && CPU_REG_RF2==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0001 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==4'b0000 && CPU_REG_RF2==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n twc OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n twc erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1," reg_rf2=" , CPU_REG_RF2, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x1, incdec=0, reg_rf1=" , 4'b0000 ," reg_rf2=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	end
 
 //inc
 	@(negedge clk) rf2 = 4'b0010;
-	
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0000 && CPU_ULAMux_inc_dec==1'b1 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0000 && CPU_ULAMux_inc_dec==1'b1 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n inc OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n inc erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x0, incdec=1, reg_rf1=" , rf1 , " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	end
 //dec
 	@(negedge clk) rf2 = 4'b0011;
-	
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0001 && CPU_ULAMux_inc_dec==1'b1 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0001 && CPU_ULAMux_inc_dec==1'b1 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n dec OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n dec erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x1, incdec=1, reg_rf1=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	rf2 = 4'b0101;
@@ -277,40 +282,40 @@ $display(" \n\n FIM TESTE operacao com ULA SIMPLES " , $time," <-time \n\n\n"  )
 
 $display(" \n\n TESTE operacao com ULA e reset entre cada operacao" , $time," <-time" );
 // soma
-	
+
     @(negedge clk) opcode= 4'b1000; rst = ~rst;
 	@(posedge clk) begin
-	
-					if ( CPU_ULA_ctrl==4'b0000 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
+
+					#1 if ( CPU_ULA_ctrl==4'b0000 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
 						$display(" \n\n soma OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n soma erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1," reg_rf2=" , CPU_REG_RF2, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display("  esperava-se: ula_ctrl= 0x0, incdec=0, reg_rf1=" , rf1, " reg_rf2=" , rf2, "  reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
-	rst = ~rst;				
+	rst = ~rst;
 	end
-//subtração	
+//subtração
 	@(negedge clk) opcode= 4'b1001;
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0001 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0001 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
 						$display(" \n\n sub OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n sub erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1," reg_rf2=" , CPU_REG_RF2, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display("  esperava-se: ula_ctrl= 0x1, incdec=0, reg_rf1=" , rf1,"  reg_rf2=" , rf2, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	end
 //and
 @(negedge clk) opcode= 4'b1010;
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0010 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0010 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
 						$display(" \n\n and OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n and erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1," reg_rf2=" , CPU_REG_RF2, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x2, incdec=0, reg_rf1=" , rf1," reg_rf2=" , rf2, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	end
@@ -319,24 +324,24 @@ $display(" \n\n TESTE operacao com ULA e reset entre cada operacao" , $time," <-
 //or
 	@(negedge clk) opcode= 4'b1011;
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0011 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0011 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
 						$display(" \n\n or OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n or erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1," reg_rf2=" , CPU_REG_RF2, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x3, incdec=0, reg_rf1=" , rf1," reg_rf2=" , rf2, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	end
 //xor
 	@(negedge clk) opcode= 4'b1100;
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0100 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0100 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RF2==rf2 && CPU_REG_RD==rd) begin
 						$display(" \n\n xor OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n xor erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1," reg_rf2=" , CPU_REG_RF2, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x4, incdec=0, reg_rf1=" , rf1," reg_rf2=" , rf2, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	end
@@ -344,18 +349,18 @@ $display(" \n\n TESTE operacao com ULA e reset entre cada operacao" , $time," <-
 
 
 //shr
-@(negedge clk)begin 
+@(negedge clk)begin
 		opcode= 4'b1101;
 		rf2= 4'b0000;
-	end	
-	
+	end
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0101 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0101 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n shr OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n shr erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x5, incdec=0, reg_rf1=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	end
@@ -363,104 +368,104 @@ $display(" \n\n TESTE operacao com ULA e reset entre cada operacao" , $time," <-
 @(negedge clk)	rf2= 4'b0001;
 
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b1101 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b1101 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n rtr OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n rtr erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0xd, incdec=0, reg_rf1=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	end
-	
+
 //shl
-@(negedge clk)begin 
+@(negedge clk)begin
 		opcode= 4'b1110;
 		rf2= 4'b0000;
-	end	
-	
+	end
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0110 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0110 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n shl OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n shl erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x6, incdec=0, reg_rf1=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	end
-	
-	
+
+
 //rtl
 @(negedge clk) rf2= 4'b0001;
-	
-	
+
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b1110 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b1110 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n rtl OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n rtl erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0xe, incdec=0, reg_rf1=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	end
 
 
 //not
-	@(negedge clk)begin 
+	@(negedge clk)begin
 		opcode= 4'b1111;
 		rf2= 4'b0000;
-	end	
-	
+	end
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0111 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0111 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n not OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n not erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x7, incdec=0, reg_rf1=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	end
-	
+
 //twc
 	@(negedge clk) rf2 = 4'b0001;
-	
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0001 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==4'b0000 && CPU_REG_RF2==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0001 && CPU_ULAMux_inc_dec==1'b0 && CPU_REG_RF1==4'b0000 && CPU_REG_RF2==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n twc OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n twc erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1," reg_rf2=" , CPU_REG_RF2, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x1, incdec=0, reg_rf1=" , 4'b0000 ," reg_rf2=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	end
 
 //inc
 	@(negedge clk) rf2 = 4'b0010;
-	
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0000 && CPU_ULAMux_inc_dec==1'b1 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0000 && CPU_ULAMux_inc_dec==1'b1 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n inc OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n inc erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x0, incdec=1, reg_rf1=" , rf1 , " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	end
 //dec
 	@(negedge clk) rf2 = 4'b0011;
-	
+
 	@(posedge clk) begin
-					if ( CPU_ULA_ctrl==4'b0001 && CPU_ULAMux_inc_dec==1'b1 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
+					#1 if ( CPU_ULA_ctrl==4'b0001 && CPU_ULAMux_inc_dec==1'b1 && CPU_REG_RF1==rf1 && CPU_REG_RD==rd) begin
 						$display(" \n\n dec OK " , $time," <-time"  );
 					end else begin
 						$display(" \n\n dec erro " , $time," <-time \n recebeu-se: ula_ctrl=" , CPU_ULA_ctrl, " incdec=" ,CPU_ULAMux_inc_dec, " reg_rf1=" , CPU_REG_RF1, " reg_rd=" , CPU_REG_RD,  " \n" );
 						$display(" esperava-se: ula_ctrl= 0x1, incdec=1, reg_rf1=" , rf1, " reg_rd=" , rd,  " \n\n" );
-					end	
+					end
 	rst = ~rst;
 	rst = ~rst;
 	end
