@@ -13,13 +13,18 @@ OperatorGroup2={'CALL':'4','JMP':'0','JZ':'0','JC':'0','JM':'0'}#instrucoes com 
 OperatorGroup3={'SHR':'0','RTR':'1','SHL':'0','RTL':'1','NOT':'0','TWC':'1','INC':'2','DEC':'3'}#instrucoes com 3 operadores,mnemonico+RD+RF1
 REGs={'R0':'0','R1':'1','R2':'2','R3':'3','R4':'4','R5':'5','R6':'6','R7':'7','R8':'8','R9':'9','R10':'A','R11':'B','R12':'C','R13':'D','R14':'E','R15':'F'}
 #main
+
 print "Iniciando ..."
 '''
 ====== Carregamento do arquivo =====
 '''
-print "Lendo o arquivo "+str((sys.argv[0]))
 #arquivo=open((sys.argv[0]),'r')
-arquivo=open("D:\Eletronica\Projects\NRISC\Assembler\Test.asm",'r')#arquivo de teste
+if(len(sys.argv)>1):
+    print "Lendo o arquivo "+str((sys.argv[1]))
+    arquivo=open(sys.argv[1],'r')
+else:
+    print "Lendo o arquivo "+str((sys.argv[0]))+" Test dev mode"
+    arquivo=open("D:\Eletronica\Projects\NRISC\Assembler\Test.asm",'r')#arquivo de teste
 code=arquivo.readlines()
 arquivo.close()
 print "Carregado "+str(len(code))+" linha"+("s." if len(code)>1 else ".")
@@ -89,7 +94,13 @@ for x in code:
             errorCount+=1
 
 print ("Arquivo Compilado, "+str(len(code)-comentCount)+" palavras de code"  if errorCount==0 else str(errorCount)+" erro"+(" " if errorCount==1 else "s ")+"encontrado"+("." if errorCount==1 else "s."))
-file = open("D:\Eletronica\Projects\NRISC\Assembler\Test.hex","w")
+if(len(sys.argv)>1):
+    print "Gravando "+str(sys.argv[1].split('.')[0])+".hex"
+    file = open(str(sys.argv[1].split('.')[0])+".hex","w")
+else:
+    print "Gravando o arquivo - Test dev mode"
+    file = open("D:\Eletronica\Projects\NRISC\Assembler\Test.hex","w")
+
 
 file.write(out)
 file.close()
