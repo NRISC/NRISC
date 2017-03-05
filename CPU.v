@@ -478,4 +478,4 @@ module NRISC_CPU(
 				endcase
 
 		end
-endmodule;
+endmodule
