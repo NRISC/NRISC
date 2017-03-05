@@ -104,19 +104,24 @@ module NRISC_CPU(
 				/*
 				* hardware rst
 				*/
+				//STACK ctrl rst
+				CPU_STACK_ctrl<=0;
 				//PC Config
 				CPU_PC_clk<=0;
 				//REGs write rst
 				CPU_REG_write<=0;
-
+				//DATA clk rst
+				CPU_DATA_ADDR_clk<=0;
 				/*
 				*		instruction decode state machine
 				*/
 				case (CPU_Status)
-				3'h0:begin
-								/*
-								*		instruction decode state machine
-								*/
+				3'h0:begin /* Instruction decode state machine */
+
+								// DATA ctrl rst
+								CPU_DATA_write<=0;
+								CPU_DATA_load<=0;
+
 								case (CPU_InstructionIN[15:12])
 									4'h0: begin	//TODO CPU instructions
 															//TODO
@@ -409,13 +414,15 @@ module NRISC_CPU(
 				3'h1:begin
 								/*
 								*  Memory operations
+								*  LW & SW
 								*/
-
+								//update Status
+								CPU_Status<=0;
 								case(CPU_InstructionIN[15:12])
 										4'h1: begin	//LW
 															CPU_REG_RD=CPU_InstructionIN[11:8];
-															//update Status
-															CPU_Status<=0;
+															// DATA MEM read config
+															CPU_DATA_load<=1;
 													end
 										4'h2: begin	//SW
 															//ULA config
@@ -424,10 +431,8 @@ module NRISC_CPU(
 															//REG config
 															CPU_REG_RF1<=CPU_InstructionIN[11:8];
 															CPU_REG_RF2<=CPU_InstructionIN[11:8];
-															//DATA mem config
+															//DATA mem write config
 															CPU_DATA_write<=1;
-															//update Status
-															CPU_Status<=0;
 
 													end
 
