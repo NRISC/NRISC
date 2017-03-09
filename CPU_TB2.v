@@ -86,6 +86,7 @@ end
 reg[3:0] opcode, rf1, rf2, rd;
 reg[1:0] x;
 reg y;
+reg[2:0] flags;
 //initial rf1 = 4'b1010;
 //initial rf2 = 4'b0101;
 //initial rd  = 4'b1001;
@@ -106,6 +107,7 @@ always @(negedge clk)begin
 		rf1 ={$random()}%(4'b1111) ; 
 		rf2 ={$random()}%(4'b1111) ; 
 		rd ={$random()}%(4'b1111) ; 
+		flags={$random()}%(3'b111) ;
 		y=~y;
 	end	
 end
@@ -297,10 +299,10 @@ always @ ( posedge clk ) begin
 			end
 			
 			4'b0101: begin
-				if ((CPU_ULA_ctrl==4'b0000)&&(CPU_ULAMux_inc_dec==0)&&(CPU_REG_RF1==rf1)&&(CPU_REG_RF2==rf2)&&(CPU_InstructionToREGMux==0)&&(CPU_DATA_REGMux==0)&&(CPU_Status==0)&&(CPU_REG_write==0)&&(CPU_DATA_write==0)&&(CPU_DATA_load==0)&&(CPU_DATA_ADDR_clk==0)&&(CPU_STACK_ctrl==0))begin
-				//	$display(" \n\n soma OK " , $time," <-time"  );
+				if ((CPU_ULA_ctrl==4'b0000)&&(CPU_ULAMux_inc_dec==0)&&(CPU_REG_RF1==rf1)&&(CPU_REG_RF2==rf2)&&(CPU_InstructionToREGMux==0)&&(CPU_DATA_REGMux==0)&&(CPU_Status==(flags[1]?2:0))&&(CPU_REG_write==0)&&(CPU_DATA_write==0)&&(CPU_DATA_load==0)&&(CPU_DATA_ADDR_clk==0)&&(CPU_STACK_ctrl==0))begin
+				//	$display(" \n\n JZ OK " , $time," <-time"  );
 				end else begin
-					$display(" \n\n soma ERRO " , $time," <-time"  );
+					$display(" \n\n JZ ERRO " , $time," <-time"  );
 					$display("\n           recebido           esperado ");
 					$display("CPU_ULA_ctrl          ",CPU_ULA_ctrl ,     "             0000");
 					$display("CPU_ULAMux_inc_dec       ",CPU_ULAMux_inc_dec ,     "            0");
@@ -309,7 +311,7 @@ always @ ( posedge clk ) begin
 					$display("CPU_REG_RF2            ",CPU_REG_RF2 ,"         ",     rf2);
 					$display("CPU_InstructionToREGMux            ",CPU_InstructionToREGMux ,     "          0");
 					$display("CPU_DATA_REGMux          ",CPU_DATA_REGMux ,     "          0");
-					$display("CPU_Status            ",CPU_Status ,     "             0");
+					$display("CPU_Status            ",CPU_Status ,     "            ",flags[1]?2:0);
 					$display("CPU_DATA_write            ",CPU_DATA_write ,     "         0");
 					$display("CPU_DATA_load            ",CPU_DATA_load ,     "           0");
 					$display("CPU_DATA_ADDR_clk        ",CPU_DATA_ADDR_clk ,     "         0");
@@ -318,6 +320,47 @@ always @ ( posedge clk ) begin
 		
 			end
 			
+			4'b0110: begin
+				if ((CPU_ULA_ctrl==4'b0000)&&(CPU_ULAMux_inc_dec==0)&&(CPU_REG_RF1==rf1)&&(CPU_REG_RF2==rf2)&&(CPU_InstructionToREGMux==0)&&(CPU_DATA_REGMux==0)&&(CPU_Status==(flags[0]?2:0))&&(CPU_REG_write==0)&&(CPU_DATA_write==0)&&(CPU_DATA_load==0)&&(CPU_DATA_ADDR_clk==0)&&(CPU_STACK_ctrl==0))begin
+				//	$display(" \n\n JC OK " , $time," <-time"  );
+				end else begin
+					$display(" \n\n JC ERRO " , $time," <-time"  );
+					$display("\n           recebido           esperado ");
+					$display("CPU_ULA_ctrl          ",CPU_ULA_ctrl ,     "             0000");
+					$display("CPU_ULAMux_inc_dec       ",CPU_ULAMux_inc_dec ,     "            0");
+					$display("CPU_REG_RF1            ",CPU_REG_RF1 ,"         ",    rf1);
+					$display("CPU_REG_RF2            ",CPU_REG_RF2 ,"         ",     rf2);
+					$display("CPU_InstructionToREGMux            ",CPU_InstructionToREGMux ,     "          0");
+					$display("CPU_DATA_REGMux          ",CPU_DATA_REGMux ,     "          0");
+					$display("CPU_Status            ",CPU_Status ,     "              " ,flags[0]?2:0);
+					$display("CPU_DATA_write            ",CPU_DATA_write ,     "         0");
+					$display("CPU_DATA_load            ",CPU_DATA_load ,     "           0");
+					$display("CPU_DATA_ADDR_clk        ",CPU_DATA_ADDR_clk ,     "         0");
+					$display("CPU_STACK_ctrl           ",CPU_STACK_ctrl ,     "           0");
+				end
+		
+			end
+			
+			4'b0111: begin
+				if ((CPU_ULA_ctrl==4'b0000)&&(CPU_ULAMux_inc_dec==0)&&(CPU_REG_RF1==rf1)&&(CPU_REG_RF2==rf2)&&(CPU_InstructionToREGMux==0)&&(CPU_DATA_REGMux==0)&&(CPU_Status==(flags[2]?2:0))&&(CPU_REG_write==0)&&(CPU_DATA_write==0)&&(CPU_DATA_load==0)&&(CPU_DATA_ADDR_clk==0)&&(CPU_STACK_ctrl==0))begin
+				//	$display(" \n\n JM OK " , $time," <-time"  );
+				end else begin
+					$display(" \n\n JM ERRO " , $time," <-time"  );
+					$display("\n           recebido           esperado ");
+					$display("CPU_ULA_ctrl          ",CPU_ULA_ctrl ,     "             0000");
+					$display("CPU_ULAMux_inc_dec       ",CPU_ULAMux_inc_dec ,     "            0");
+					$display("CPU_REG_RF1            ",CPU_REG_RF1 ,"         ",    rf1);
+					$display("CPU_REG_RF2            ",CPU_REG_RF2 ,"         ",     rf2);
+					$display("CPU_InstructionToREGMux            ",CPU_InstructionToREGMux ,     "          0");
+					$display("CPU_DATA_REGMux          ",CPU_DATA_REGMux ,     "          0");
+					$display("CPU_Status            ",CPU_Status ,     "             ",flags[2]?2:0);
+					$display("CPU_DATA_write            ",CPU_DATA_write ,     "         0");
+					$display("CPU_DATA_load            ",CPU_DATA_load ,     "           0");
+					$display("CPU_DATA_ADDR_clk        ",CPU_DATA_ADDR_clk ,     "         0");
+					$display("CPU_STACK_ctrl           ",CPU_STACK_ctrl ,     "           0");
+				end
+		
+			end
 			
 			
 			
