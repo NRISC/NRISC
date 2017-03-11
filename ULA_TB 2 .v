@@ -18,11 +18,11 @@ module ULA_TB2;
 
 localparam integer PERIOD = 10;
 
-parameter TAM = 4;
+parameter TAM = 16;
 
 reg signed [TAM-1:0] ULA_A;
 reg signed [TAM-1:0] ULA_B;
-reg clk, rst, incdec;
+reg clk,incdec;
 reg [3:0] ULA_ctrl;
 
 wire signed [TAM-1:0] ULA_OUT;
@@ -46,9 +46,6 @@ NRISC_ULA #(.TAM(TAM)) DUT
 initial clk = 1'b0;
   always #(PERIOD/2) clk = ~clk;
   
-  
-  
-initial rst = 1; // conforme visto no codigo do Marlon reset e ativo em baixo
 initial incdec = 0;
 
 
@@ -60,7 +57,7 @@ reg [TAM-1:0] A,B,Am,Bm;
 always @(posedge clk)      
     begin
       /*random comand sintax:
-        min + {$random(seed)}%(max-min+1) or can use $dist_uniform(seed, min, max) */
+             min + {$random(seed)}%(max-min+1) or can use $dist_uniform(seed, min, max) */
 		A = {$random()}%(17'b11111111111111111) ; 
 		B = {$random()}%(17'b11111111111111111) ; 
 		ULA_ctrl[3:0] <= {$random()}%(5'b11111) ; 
@@ -69,14 +66,13 @@ always @(posedge clk)
 		incdec=0;
     end
 	
-always @ (ULA_ctrl)
+always @ (ULA_ctrl) 
 	begin
 		if (ULA_ctrl==4'b0000 | ULA_ctrl==0001)begin
 			incdec <= $random%(2'b11);
 		end else incdec=0;
 	
 	end
-	
 	
 always @ (incdec)
 	begin
@@ -99,8 +95,9 @@ reg [TAM-1:0] anot;    // 0111
 reg [2:0] flag0,flag1,flag2,flag3,flag4,flag5,flag6,flag7,flag8,flag9;
 reg carrymais,carrymenos,negmenos,negmais,zero;
 
-
 always @ ( * ) begin
+
+// Geração dos valores de saída da ULA
 	amaisb = A + B;
 	amenosb = A - B; 
 	amaisb2 = A + B;
@@ -113,14 +110,15 @@ always @ ( * ) begin
 	ashl = ULA_A << 1;
 	artl = {ULA_A[TAM-2:0],ULA_A[TAM-1]};
 	anot = ~ULA_A;
-	
+
+// Analise da flag zero	
 	if (ULA_OUT == 0) begin
 		zero = 1;
 	end else begin
 		zero = 0;
 	end
 	
-	
+// Analise da flag carry	
 	if (A[TAM-1]==B[TAM-1]) begin
 		carrymais=amaisb[TAM-1];
 	end else begin
@@ -135,7 +133,7 @@ always @ ( * ) begin
 		carrymenos=(amenosb[TAM-1]);
 	end
 	
-	// tirar modulo de um numero 
+// Tirar modulo de um numero para analisar a flag minus
 	if (A[TAM-1]==1'b1) begin
 		Am = ~A + 1;
 	end else begin
@@ -148,7 +146,7 @@ always @ ( * ) begin
 		Bm = B;
 	end
 	
-	// analize do minus 
+// Analize da flag minus 
 	if (Am[TAM-1:0] > Bm[TAM-1:0]) begin
 		negmais = A[TAM-1];
 	end else if (Bm[TAM-1:0] > Am[TAM-1:0])begin
@@ -172,25 +170,25 @@ always @ ( * ) begin
 	end
 		
 	
-	
-	flag0 = {negmais,zero,carrymais};
-	flag1 = {negmenos,zero,carrymenos};
-	flag2 = {1'b0,zero,1'b0};
-	flag3 = {1'b0,zero,1'b0};
-	flag4 = {1'b0,zero,1'b0}; 
-	flag5 = {1'b0,zero,ULA_A[0]}; 
-	flag6 = {1'b0,zero,1'b0}; 
-	flag7 = {1'b0,zero,ULA_A[TAM-1]};
-	flag8 = {1'b0,zero,1'b0};  
-	flag9 = {1'b0,zero,1'b0};
+// Agrupamento das flags minus,zero,carry conforme comando	
+	flag0 = {negmais,zero,carrymais}; 		//soma
+	flag1 = {negmenos,zero,carrymenos};		//subtração
+	flag2 = {1'b0,zero,1'b0};				//and
+	flag3 = {1'b0,zero,1'b0};               //or
+	flag4 = {1'b0,zero,1'b0};               //xor
+	flag5 = {1'b0,zero,ULA_A[0]};           //shr
+	flag6 = {1'b0,zero,1'b0};               //rtr
+	flag7 = {1'b0,zero,ULA_A[TAM-1]};       //shl
+	flag8 = {1'b0,zero,1'b0};               //rtl
+	flag9 = {1'b0,zero,1'b0};               //not
 			
 end 
-  
+ 
+// Analise da saída da ULA comparando a saída recebida com  saída esperada 
 always @ ( posedge clk ) begin
 	#1;
 	case (ULA_ctrl)
-		4'b0000: begin
-
+		4'b0000: begin		// Soma
 					if (ULA_OUT==amaisb[TAM-1:0])begin
 						if (flag0==ULA_flags)begin
 						end else begin							
@@ -200,7 +198,7 @@ always @ ( posedge clk ) begin
 						$display("\n \n", $time,"\n ADD ERROR     \n resultado esperado %b",amaisb,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
-		4'b0001: begin
+		4'b0001: begin		//subtração
 					if (ULA_OUT==amenosb[TAM-1:0])begin
 						if (flag1==ULA_flags)begin
 						end else begin
@@ -210,7 +208,7 @@ always @ ( posedge clk ) begin
 						$display("\n \n", $time,"\n SUB ERROR     \n resultado esperado %b",amenosb,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
-		4'b0010: begin
+		4'b0010: begin		//and
 					if (ULA_OUT==aandb)begin
 						if (flag2==ULA_flags)begin
 						end else begin
@@ -220,74 +218,74 @@ always @ ( posedge clk ) begin
 						$display("\n \n", $time,"\n AND ERROR     \n resultado esperado %b",aandb,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
-		4'b0011: begin
+		4'b0011: begin		//or
 					if (ULA_OUT==aorb)begin
 						if (flag3==ULA_flags)begin
 						end else begin
 							$display("\n \n", $time,"\n OR FLAG ERROR \n resultado esperado %b",flag3,"  \n resultado recebido %b ", ULA_flags);
 						end
 					end else begin
-					$display("\n \n", $time,"\n OR ERROR     \n resultado esperado %b",aorb,"  \n resultado recebido %b ", ULA_OUT);
+						$display("\n \n", $time,"\n OR ERROR     \n resultado esperado %b",aorb,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
-		4'b0100: begin
+		4'b0100: begin		//xor
 					if (ULA_OUT==axorb)begin
 						if (flag4==ULA_flags)begin
 						end else begin
 							$display("\n \n", $time,"\n XOR FLAG ERROR \n resultado esperado %b",flag4,"  \n resultado recebido %b ", ULA_flags);
 						end
 					end else begin
-					$display("\n \n", $time,"\n XOR ERROR     \n resultado esperado %b",axorb,"  \n resultado recebido %b ", ULA_OUT);
+						$display("\n \n", $time,"\n XOR ERROR     \n resultado esperado %b",axorb,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
-		4'b0101: begin
+		4'b0101: begin		//shr
 					if (ULA_OUT==ashr)begin
 						if (flag5==ULA_flags)begin
 						end else begin
 							$display("\n \n", $time,"\n SHR FLAG ERROR \n resultado esperado %b",flag5,"  \n resultado recebido %b ", ULA_flags);
 						end
 					end else begin
-					$display("\n \n", $time,"\n SHR ERROR     \n resultado esperado %b",ashr,"  \n resultado recebido %b ", ULA_OUT);
+						$display("\n \n", $time,"\n SHR ERROR     \n resultado esperado %b",ashr,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
-		4'b1101: begin
+		4'b1101: begin		//rtr
 					if (ULA_OUT==artr)begin
 						if (flag6==ULA_flags)begin
 						end else begin
 							$display("\n \n", $time,"\n RTR FLAG ERROR \n resultado esperado %b",flag6,"  \n resultado recebido %b ", ULA_flags);
 						end
 					end else begin
-					$display("\n \n", $time,"\n RTR ERROR     \n resultado esperado %b",artr,"  \n resultado recebido %b ", ULA_OUT);
+						$display("\n \n", $time,"\n RTR ERROR     \n resultado esperado %b",artr,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
-		4'b0110: begin
+		4'b0110: begin		//shl
 					if (ULA_OUT==ashl)begin
 						if (flag7==ULA_flags)begin
 						end else begin
 							$display("\n \n", $time,"\n SHL FLAG ERROR \n resultado esperado %b",flag7,"  \n resultado recebido %b ", ULA_flags);
 						end
 					end else begin
-					$display("\n \n", $time,"\n SHL ERROR     \n resultado esperado %b",ashl,"  \n resultado recebido %b ", ULA_OUT);
+						$display("\n \n", $time,"\n SHL ERROR     \n resultado esperado %b",ashl,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
-		4'b1110: begin
+		4'b1110: begin		//rtl
 					if (ULA_OUT==artl)begin
 						if (flag8==ULA_flags)begin
 						end else begin
 							$display("\n \n", $time,"\n RTL FLAG ERROR \n resultado esperado %b",flag8,"  \n resultado recebido %b ", ULA_flags);
 						end
 					end else begin
-					$display("\n \n", $time,"\n RTL ERROR     \n resultado esperado %b",artl,"  \n resultado recebido %b ", ULA_OUT);
+						$display("\n \n", $time,"\n RTL ERROR     \n resultado esperado %b",artl,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
-		4'b0111: begin
+		4'b0111: begin		//not
 					if (ULA_OUT==anot)begin
 						if (flag9==ULA_flags)begin
 						end else begin
 							$display("\n \n", $time,"\n NOT FLAG ERROR \n resultado esperado %b",flag9,"  \n resultado recebido %b ", ULA_flags);
 						end
 					end else begin
-					$display("\n \n", $time,"\n NOT ERROR     \n resultado esperado %b",anot,"  \n resultado recebido %b ", ULA_OUT);
+						$display("\n \n", $time,"\n NOT ERROR     \n resultado esperado %b",anot,"  \n resultado recebido %b ", ULA_OUT);
 					end
 				end
 		
