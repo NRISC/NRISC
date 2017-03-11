@@ -24,14 +24,14 @@
  reg clk;
  reg rst;
 
- reg [0:TAM-1]		dataIN0;
- reg [0:TAM-1]		dataIN1;
- wire [0:TAM-1]		dataOUT0;
- wire [0:TAM-1]		dataOUT1;
- reg [0:TAM-1]		dataADDR0;
- reg [0:TAM-1]		dataADDR1;
- reg [0:Ncores-1] 	dataWrite;
- reg [0:Ncores-1] 	dataLoad;
+ reg [TAM-1:0]		dataIN0;
+ reg [TAM-1:0]		dataIN1;
+ wire [TAM-1:0]		dataOUT0;
+ wire [TAM-1:0]		dataOUT1;
+ reg [TAM-1:0]		dataADDR0;
+ reg [TAM-1:0]		dataADDR1;
+ reg [Ncores-1:0] 	dataWrite;
+ reg [Ncores-1:0] 	dataLoad;
 
  
  
