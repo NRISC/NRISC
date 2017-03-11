@@ -50,13 +50,10 @@ initial clk = 1'b0;
   
 initial rst = 1; // conforme visto no codigo do Marlon reset e ativo em baixo
 initial incdec = 0;
-//initial cmp2= 0;
+
 
 reg [TAM-1:0] A,B,Am,Bm;
-reg x,y;
 
-initial x=0;
-initial y=0;
 
 
   // random value generation
@@ -69,37 +66,24 @@ always @(posedge clk)
 		ULA_ctrl[3:0] <= {$random()}%(5'b11111) ; 
 		ULA_B <= B;
 		ULA_A <= A;
-		//y=~y;
 		incdec=0;
-
-	//if ((ULA_ctrl[2:0]==3'b101) | (ULA_ctrl[2:0]==3'b110)) begin
-		//	ULA_ctrl[3] <= 1'b0 + {$random()}%(2'b11) ;
-		//	//ULA_ctrl[3] <= $dist_uniform(0, 0, 1) ;
-		//end else begin
-		//	ULA_ctrl[3]=0;
-		//end
-	  
     end
 	
 always @ (y,ULA_ctrl)
 	begin
 		if (ULA_ctrl==4'b0000 | ULA_ctrl==0001)begin
 			incdec <= $random%(2'b11);
-			//x=~x;
 		end else incdec=0;
 	
 	end
 	
 	
 always @ (x,incdec)
-
 	begin
 		if (incdec==1)
 			B <=16'b0000000000000001;
 	end
 
-
-//reg [TAM-1:0] A,B;
 reg signed [TAM-1:0] amaisb;  // 0000
 reg signed [TAM:0] amaisb2;  // 0000
 reg signed [TAM-1:0] amenosb; // 0001
@@ -129,7 +113,6 @@ always @ ( * ) begin
 	ashl = ULA_A << 1;
 	artl = {ULA_A[TAM-2:0],ULA_A[TAM-1]};
 	anot = ~ULA_A;
-	//bcomp2 = 0 - B;
 	
 	if (ULA_OUT == 0) begin
 		zero = 1;
@@ -151,10 +134,6 @@ always @ ( * ) begin
 	end else begin
 		carrymenos=(amenosb[TAM-1]);
 	end
-	
-	
-	
-	//carrymenos = ~carrymais;
 	
 	// tirar modulo de um numero 
 	if (A[TAM-1]==1'b1) begin
@@ -205,10 +184,7 @@ always @ ( * ) begin
 	flag8 = {1'b0,zero,1'b0};  
 	flag9 = {1'b0,zero,1'b0};
 			
-end
-// always @ ( * ) begin
-	
-//end 
+end 
   
 always @ ( posedge clk ) begin
 	#1;
