@@ -63,7 +63,7 @@ initial dataWrite = 0;
 
 reg x;
 initial x=0;
-reg i;
+reg[1:0] i;
 initial i=0;
 always #(PERIOD/2) clk = ~clk;
  
@@ -77,7 +77,7 @@ always @(x)      //sempre que houver mensagem troca as variáveis e mostra se é
 	
         /*random comand sintax:
         min + {$random(seed)}%(max-min+1) or can use $dist_uniform(seed, min, max) */
-	
+		#2
 		dataIN0   <= {$random()}%(17'b11111111111111111);
 		dataIN1   <= {$random()}%(17'b11111111111111111);
 		dataADDR0 <= {$random()}%(8'b11111111);
@@ -90,34 +90,36 @@ always @(x)      //sempre que houver mensagem troca as variáveis e mostra se é
 /*==========================================================*/ 
  
  always @(posedge clk)begin
-	if (i==0)begin
+	if ((i==2)||(i==0))begin
 		dataWrite=2'b11;
 		dataLoad=2'b00;	
 		i=1;
 	end else if (i==1)begin
 		dataWrite=2'b00;
 		dataLoad=2'b11;
-		i=0;
+		i=2;
 	end
  end
 /*-------------------- testes ---------------------------*/
 
  always@(negedge clk) begin	
-	if(i==0)begin
+	if(i==2)begin
+	#1
 		if ((dataOUT0 == dataIN0) && (dataOUT1 == dataIN1)) begin
-			$display("\n \n escrita e leitura teste ok" , $time, "unidade de tempo");
+			$display("\n \n escrita e leitura teste ok" , $time, "   unidade de tempo");
 			x=~x;
 		end else begin
 			if ((dataOUT0 == dataIN0))begin 
-				$display("\n \n data0 com erro", $time, "unidade de tempo","\n      recebido ",dataOUT0,"\n esperado  ",dataIN0);
+				$display("\n \n data0 com erro", $time, "   unidade de tempo","\n      recebido ",dataOUT0,"\n      esperado  ",dataIN0);
 				x=~x;
 			end else if ((dataOUT1 == dataIN1))begin
-				$display("\n \n data1 com erro", $time, "unidade de tempo","\n      recebido ",dataOUT1,"\n esperado  ",dataIN1);	
+				$display("\n \n data1 com erro", $time, "   unidade de tempo","\n      recebido ",dataOUT1,"\n      esperado  ",dataIN1);	
 				x=~x;
 			end else begin
-				$display("\n\n  ERRO ", $time, "unidade de tempo");
-				$display("\n data0 com erro","\n      recebido ",dataOUT0,"\n esperado  ",dataIN0);
-				$display("\n data1 com erro","\n      recebido ",dataOUT1,"\n esperado  ",dataIN1);
+				$display("\n\n  ERRO ", $time, "   unidade de tempo");
+				$display("\n data0 com erro","\n      recebido ",dataOUT0,"\n      esperado  ",dataIN0);
+				$display("\n data1 com erro","\n      recebido ",dataOUT1,"\n      esperado  ",dataIN1);
+				x=~x;
 			end
 			
 			

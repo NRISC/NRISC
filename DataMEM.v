@@ -36,9 +36,9 @@ module DataMEM(
 				/*
 				* Internal components
 				*/
-				reg [TAM-1:0] SelfMEM0 [0:(1<<Lmem)-1] ;
-				reg [TAM-1:0] SelfMEM1 [0:(1<<Lmem)-1] ;
-				reg [TAM-1:0] SharedMEM [0:(1<<Lmem)-1];
+				reg [TAM-1:0] SelfMEM0 [(1<<Lmem)-1:0] ;
+				reg [TAM-1:0] SelfMEM1 [(1<<Lmem)-1:0] ;
+				reg [TAM-1:0] SharedMEM [(1<<Lmem)-1:0];
 				reg [TAM-1:0] sharedIn1REG;
 				reg [Lmem-1:0] sharedIn1ADDR;
 				reg sharedCtrlREG;
@@ -56,22 +56,22 @@ module DataMEM(
 				//Escrita core 0
 				assign selfWriteCLK[0]=dataWrite[0] & ~dataADDR0[Lmem] & ~clk; //sinal auxiliar de comando de escrita na memoria
 				always @ ( posedge selfWriteCLK[0]) begin
-						SelfMEM0[0][dataADDR0[Lmem-1:0]]=dataIN0[0];
+						SelfMEM0[dataADDR0[Lmem-1:0]]=dataIN0;
 				end
 				//Leitura core 0
 				assign selfReadCLK[0]=dataLoad[0] & ~dataADDR0[Lmem] & ~clk; //sinal auxiliar de comando de leitura na memoria
 				always @ ( posedge selfReadCLK[0]) begin
-						dataOUT0=SelfMEM0[0][dataADDR0[Lmem-1:0]];
+						dataOUT0=SelfMEM0[dataADDR0[Lmem-1:0]];
 				end
 				//Escrita core 1
 				assign selfWriteCLK[1]=dataWrite[1] & ~dataADDR1[Lmem] & ~clk; //sinal auxiliar de comando
 				always @ ( posedge selfWriteCLK[1]) begin
-						SelfMEM1[1][dataADDR1[Lmem-1:0]]=dataIN1[1];
+						SelfMEM1[dataADDR1[Lmem-1:0]]=dataIN1;
 				end
 				//Leitura core 1
 				assign selfReadCLK[1]=dataLoad[1] & ~dataADDR1[Lmem] & ~clk; //sinal auxiliar de comando de leitura na memoria
 				always @ ( posedge selfReadCLK[1]) begin
-						dataOUT1=SelfMEM0[1][dataADDR1[Lmem-1:0]];
+						dataOUT1=SelfMEM1[dataADDR1[Lmem-1:0]];
 				end
 				/*
 				* Leitura e escrita na memoria compartilhada
