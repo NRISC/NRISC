@@ -1,7 +1,7 @@
 //ULA
 
 /*************************************************************************
- *  descricao do bloco ula                              versao 0.1      *
+ *  descricao do bloco ula                              versao 0.11      *
  *                                                                       *
  *  Developer: Marlon                              15-12-2016            *
  *             marlonsigales@gmail.com                                   *
@@ -23,10 +23,7 @@ module NRISC_ULA(
                     ULA_OUT,    // output output 
                     ULA_ctrl,   //input comando
                     ULA_flags,  //output minus, carry, zero
-                    clk,        //input clock           saida na subida  
-                    rst,            //input reset           ativo baixo 
-                    incdec,
-                    cmp2
+                    incdec
                     );
 
                     
@@ -37,10 +34,7 @@ module NRISC_ULA(
     //-------------portas de entrada------------------------------------------------------------------
     input wire [TAM-1:0] ULA_A;
     input wire [TAM-1:0] ULA_B;
-    input wire clk;//teste
-    input wire rst;
     input wire incdec;
-    input wire cmp2;
     input wire [3:0] ULA_ctrl;//4 fios de controle, do bit2 ao bit0 selecao de funcao, bit3 selecao para os rot/shr ou assim por diante
     //-------------portas de saida--------------------------------------------------------------------
     output wire [TAM-1:0] ULA_OUT;
@@ -56,8 +50,10 @@ module NRISC_ULA(
     
     wire carryl;   // auxilhares do carry
     wire carryr;
-    wire carrymin;
-    wire carrysom;
+    wire carrymin0; //caso de subtração com zero
+	wire carrysom;
+    wire minsub;// do minus
+    wire minsom;
                                             
     wire cin;   //para escolher entre soma e subtracao  
     wire cmd;   //se 0 e shift e se 1 rotate
@@ -83,6 +79,9 @@ module NRISC_ULA(
     wire [TAM-1:0] auxor;  //
     wire [TAM-1:0] auxnot; //
     wire [TAM-1:0] auxxor; //
+    
+    wire [TAM-1:1] auxincdec; //
+    
 
 //descrever criterios de selecao do mux, chamar todas as funcoes em paralelo            
 //chamadas das funcoes;
@@ -91,9 +90,9 @@ module NRISC_ULA(
     wire [TAM-1:1]Alpha; 
     wire Beta;
     assign {Alpha,Beta}= ULA_B;
-    assign B  = {(Alpha & ~(incdec)), (Beta | incdec)} ; //se incdec setado, entrada da ula é 1, pra somar com oque já tinhas 
-    assign A   = ULA_A | {TAM{cmp2}}; //se cmp2 setado, entrada da ula é -1 daí faz notA -(-1) 
-    //se ambos ativos, vai fazer uma operação com 1 e -1, e vai ser mó doido, ucp não pode ter isso.
+    assign auxincdec = {(TAM-1){~incdec}};
+    assign B  = {(Alpha & auxincdec), (Beta | incdec)} ; //se incdec setado, entrada da ula é 1, pra somar com oque já tinhas 
+    assign A   = ULA_A ;
    
     
 //nomemodulo nomelocal (.parametrolah(parametroaqui)) (conexoes)(   // .nomelah (nomeaqui))   
@@ -103,7 +102,7 @@ module NRISC_ULA(
     notn    #(.TAM(TAM)) not1 ( .A (A), .Outnot (Outnot));
     rotshl  #(.TAM(TAM)) rotshiftl ( .A (A), .cmd (cmd), .Outrl (Outrl));  
     rotshr  #(.TAM(TAM)) rotshiftr ( .A (A), .cmd (cmd), .Outrr (Outrr)); 
-    somaUla #(.TAM(TAM)) sumsub ( .A (A), .B (B), .cin (cin), .Outsum (Outsum));
+    somaUla #(.TAM(TAM)) sumsub ( .A (A), .B (B), .cin (cin), .Outsum (Outsum), .carrysom (carrysom));
 	
 	
 //linkando os resultados das flags     
@@ -111,12 +110,17 @@ module NRISC_ULA(
     
     assign carryl = (A[TAM-1] & ~(cmd) & ctrla[2] & ctrla[1] & ~(ctrla[0]));//so eh 1 se a selecao estiver nele e se carry da operacao foi setado
     assign carryr = (A[0] & ~(cmd) & ctrla[2] & ~(ctrla[1]) & ctrla[0]);//                                       ||
-    assign carrysom = (~(A[TAM-1]) & ~(B[TAM-1]) & Outsum[TAM-1] & ~(ctrla[2]) & ~(ctrla[1]) & ~(ctrla[0]));// ||
-    assign carrymin = (A[TAM-1] & B[TAM-1] & ~(ctrla[2]) & ~(ctrla[1]) & ctrla[0]);//                           ||
+    assign carrymin0 = ( (B==0) ? 1'b1 : 1'b0) & (ctrla[0]) & ~ctrla[2] & ~(ctrla[1]);
+	
+    assign minsom = ((((A[TAM-1] & Outsum[TAM-1])|(B[TAM-1] & (A[TAM-1] | Outsum[TAM-1])))) & ~(ctrla[2]) & ~(ctrla[1]) & ~(ctrla[0]));// || verificar se faz no bit de sinal ou no anterior
+    assign minsub = ((((A[TAM-1] & Outsum[TAM-1])|(~B[TAM-1] & (A[TAM-1] | Outsum[TAM-1])))) & ~(ctrla[2]) & ~(ctrla[1]) & ctrla[0]);//         
     
-    assign carry = carrymin | carrysom  | carryl | carryr; //verifica se carry    
+    
+    
+    
+    assign carry = ((carrysom & ~ctrla[2] & ~(ctrla[1]) & ~carrymin0) )   | carryl | carryr; //verifica se carry    
     assign zero = ULA_OUT ? 1'b0 : 1'b1;      //flag zero ativa quando a saida e zero
-    assign minus = (((A[TAM-1] & B[TAM-1] ) ||Outsum[TAM-1]) && ~(ctrla[2]) && ~(ctrla[1])); //apenas operacoes de soma que retornam menos
+    assign minus = minsom | minsub; //apenas operacoes de soma que retornam menos
     assign ULA_flags = {minus, zero, carry};  //concatena as flags para enviar para a saida 
 
     // registros das saidas 
@@ -130,7 +134,7 @@ module NRISC_ULA(
     assign auxsum =({TAM{(~(ctrla[2]) & ~(ctrla[1]))}} & Outsum);
     
     
-    assign ULA_OUT = {TAM{rst}} & ( auxnot| auxrl| auxrr| auxxor| auxor| auxand| auxsum);
+    assign ULA_OUT =  ( auxnot| auxrl| auxrr| auxxor| auxor| auxand| auxsum);
             
         
 endmodule
@@ -215,8 +219,8 @@ module rotshr(A, cmd, Outrr);
 
     
         //se rotate carrega o lsb pro msb
-    //assign Outrr[TAM-1] =  cmd ? A[0] : A[TAM-1]; //sinalizado
-	assign Outrr[TAM-1] =  cmd ? A[0] : 1'b0 ; //não sinalizado
+    assign Outrr[TAM-1] =  cmd ? A[0] : A[TAM-1]; //sinalizado
+	//assign Outrr[TAM-1] =  cmd ? A[0] : 1'b0 ; //não sinalizado
 	
 	
     
@@ -255,7 +259,7 @@ endmodule
 
                
 // somas               
-module somaUla(A, B, cin, Outsum);
+module somaUla(A, B, cin, Outsum, carrysom);
 
         //Parameter numero de bits  
         parameter TAM = 16;
@@ -266,7 +270,8 @@ module somaUla(A, B, cin, Outsum);
         
         //-------------portas de saida--------------------------------------------------------------------
         output wire [TAM-1:0] Outsum;
-        
+        output wire  carrysom;
+		
         wire [TAM-1:0] Baux;
         
         wire [TAM-1:0] x;
@@ -297,6 +302,7 @@ module somaUla(A, B, cin, Outsum);
             end
         endgenerate
         
+		assign carrysom = coutinternal[TAM-2];
         assign Outsum = suminternal;
 
 endmodule

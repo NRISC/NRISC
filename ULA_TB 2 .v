@@ -1,9 +1,9 @@
 //ULA_TB 2
 
 /*************************************************************************
- *  descricao do testbench da ula                   versao 2.02          *
+ *  descricao do testbench da ula                   versao 2.05          *
  *                                                                       *
- *  Developer: Mariano                             15-12-2016            *
+ *  Developer: Mariano                             11-01-2017            *
  *             marianobw@hotmail.com                                     *
  *  Corrector: Marlon                              15-12-2016            *
  *             marlonsigales@gmail.com                                   *
@@ -18,7 +18,7 @@ module ULA_TB2;
 
 localparam integer PERIOD = 10;
 
-parameter TAM = 16;
+parameter TAM = 4;
 
 reg signed [TAM-1:0] ULA_A;
 reg signed [TAM-1:0] ULA_B;
@@ -30,14 +30,12 @@ wire [2:0] ULA_flags;
  
  
  // Device Under Test instantiation <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-NRISC_ULA DUT
+ 
+NRISC_ULA #(.TAM(TAM)) DUT
   (
   .ULA_A (ULA_A),
   .ULA_B (ULA_B),
-  .clk (clk),
-  .rst (rst),
   .incdec(incdec),
-  .cmp2(cmp2),
   .ULA_ctrl (ULA_ctrl),
   .ULA_OUT (ULA_OUT),
   .ULA_flags (ULA_flags)
@@ -47,16 +45,29 @@ NRISC_ULA DUT
 // clock generation
 initial clk = 1'b0;
   always #(PERIOD/2) clk = ~clk;
+  
+  
+  
+initial rst = 1; // conforme visto no codigo do Marlon reset e ativo em baixo
+initial incdec = 0;
+initial cmp2= 0;
+
+reg [TAM-1:0] A,B,Am,Bm;
 
   // random value generation
 always @(posedge clk)      
     begin
       /*random comand sintax:
         min + {$random(seed)}%(max-min+1) or can use $dist_uniform(seed, min, max) */
-		ULA_A <= 16'b0 + {$random()}%(17'b11111111111111111) ; 
-		ULA_B <= 16'b0 + {$random()}%(17'b11111111111111111) ; 
-		ULA_ctrl[3:0] <= 4'b0 + {$random()}%(5'b11111) ; 
-		//if ((ULA_ctrl[2:0]==3'b101) | (ULA_ctrl[2:0]==3'b110)) begin
+		A = {$random()}%(17'b11111111111111111) ; 
+		B = {$random()}%(17'b11111111111111111) ; 
+		ULA_ctrl[3:0] <= {$random()}%(5'b11111) ; 
+		ULA_B <= B;
+		ULA_A <= A;
+
+
+
+	//if ((ULA_ctrl[2:0]==3'b101) | (ULA_ctrl[2:0]==3'b110)) begin
 		//	ULA_ctrl[3] <= 1'b0 + {$random()}%(2'b11) ;
 		//	//ULA_ctrl[3] <= $dist_uniform(0, 0, 1) ;
 		//end else begin
@@ -64,21 +75,28 @@ always @(posedge clk)
 		//end
 	  
     end
-  
-  
-  
-  
-
- 
-initial rst = 1; // conforme visto no codigo do Marlon reset e ativo em baixo
-initial incdec = 0;
-initial cmp2= 0;
-
+	
+always @ (ULA_ctrl)
+	begin
+		if (ULA_ctrl==4'b0000 | ULA_ctrl==0001)
+			incdec <= $random%(2'b11);
+		else incdec=0;
+	
+	end
+	
+	
+always @ (incdec)
+	begin
+		if (incdec==1)
+			B <=16'b0000000000000001;
+	end
 
 
 //reg [TAM-1:0] A,B;
-reg [TAM:0] amaisb;  // 0000
-reg [TAM:0] amenosb; // 0001
+reg signed [TAM-1:0] amaisb;  // 0000
+reg signed [TAM:0] amaisb2;  // 0000
+reg signed [TAM-1:0] amenosb; // 0001
+reg signed [TAM:0] amenosb2; // 0001
 reg [TAM-1:0] aandb;   // 0010
 reg [TAM-1:0] aorb;    // 0011
 reg [TAM-1:0] axorb;   // 0100
@@ -87,43 +105,112 @@ reg [TAM-1:0] artr;    // 1101
 reg [TAM-1:0] ashl;    // 0110
 reg [TAM-1:0] artl;    // 1110
 reg [TAM-1:0] anot;    // 0111
-reg [2:0] flag0,flag1,flag2,flag3,flag4,flag5,flag6,flag7,flag8,flag9,flag10;
-
+reg [2:0] flag0,flag1,flag2,flag3,flag4,flag5,flag6,flag7,flag8,flag9;
+reg carrymais,carrymenos,negmenos,negmais,zero;
 
 
 always @ ( * ) begin
-	amaisb = ULA_A + ULA_B;
-	amenosb = ULA_A - ULA_B; 
+	amaisb = A + B;
+	amenosb = A - B; 
+	amaisb2 = A + B;
+	amenosb2 = A - B;	
 	aandb = ULA_A & ULA_B;
 	aorb = ULA_A | ULA_B;
 	axorb = ULA_A ^ ULA_B;
-	ashr = ULA_A >> 1;
+	ashr = {ULA_A[TAM-1],ULA_A[TAM-1:1]};
 	artr = {ULA_A[0],ULA_A[TAM-1:1]};
 	ashl = ULA_A << 1;
 	artl = {ULA_A[TAM-2:0],ULA_A[TAM-1]};
 	anot = ~ULA_A;
+	//bcomp2 = 0 - B;
 	
-	flag0 = {amaisb[TAM-1],1'b0,amaisb[TAM]};
-	flag1 = {amenosb[TAM-1],1'b0,amenosb[TAM]};
-	flag2 = {1'b0,1'b0,amaisb[TAM]};
-	flag3 = {1'b0,1'b0,1'b0};
-	flag4 = {1'b0,1'b0,1'b0}; 
-	flag5 = {1'b0,1'b0,ULA_A[0]}; 
-	flag6 = {1'b0,1'b0,1'b0}; 
-	flag7 = {1'b0,1'b0,ULA_A[TAM-1]};
-	flag8 = {1'b0,1'b0,1'b0};  
-	flag9 = {1'b0,1'b0,1'b0};
+	if (ULA_OUT == 0) begin
+		zero = 1;
+	end else begin
+		zero = 0;
+	end
+	
+	
+	if (A[TAM-1]==B[TAM-1]) begin
+		carrymais=amaisb[TAM-1];
+	end else begin
+		carrymais=~(amaisb[TAM-1]);
+	end
+	
+	if (B==0)begin
+		carrymenos=0;
+	end else if(A[TAM-1]==B[TAM-1]) begin
+		carrymenos=~(amenosb[TAM-1]);
+	end else begin
+		carrymenos=(amenosb[TAM-1]);
+	end
+	
+	
+	
+	//carrymenos = ~carrymais;
+	
+	// tirar modulo de um numero 
+	if (A[TAM-1]==1'b1) begin
+		Am = ~A + 1;
+	end else begin
+		Am = A;
+	end
+	
+	if (B[TAM-1] ==1'b1)begin
+		Bm = ~B + 1;
+	end else begin
+		Bm = B;
+	end
+	
+	// analize do minus 
+	if (Am[TAM-1:0] > Bm[TAM-1:0]) begin
+		negmais = A[TAM-1];
+	end else if (Bm[TAM-1:0] > Am[TAM-1:0])begin
+		negmais = B[TAM-1];
+	end else if (A==B)begin
+		negmais = A[TAM-1];
+	end else if (A != B) begin
+		negmais = 0 ;
+	end
+	
+	if (Am[TAM-1:0] > Bm[TAM-1:0]) begin
+		negmenos = A[TAM-1];
+	end else if (Bm[TAM-1:0] > Am[TAM-1:0]) begin
+		negmenos = ~B[TAM-1];
+	end else if ($signed(A) < $signed(B)) begin
+		negmenos = 1;
+	end else if ($signed(A) > $signed(B)) begin
+		negmenos = 0;
+	end else begin // se A = B 
+		negmenos = 0;
+	end
+		
+	
+	
+	flag0 = {negmais,zero,carrymais};
+	flag1 = {negmenos,zero,carrymenos};
+	flag2 = {1'b0,zero,1'b0};
+	flag3 = {1'b0,zero,1'b0};
+	flag4 = {1'b0,zero,1'b0}; 
+	flag5 = {1'b0,zero,ULA_A[0]}; 
+	flag6 = {1'b0,zero,1'b0}; 
+	flag7 = {1'b0,zero,ULA_A[TAM-1]};
+	flag8 = {1'b0,zero,1'b0};  
+	flag9 = {1'b0,zero,1'b0};
 			
 end
-  
+// always @ ( * ) begin
+	
+//end 
   
 always @ ( posedge clk ) begin
 	#1;
 	case (ULA_ctrl)
 		4'b0000: begin
+
 					if (ULA_OUT==amaisb[TAM-1:0])begin
 						if (flag0==ULA_flags)begin
-						end else begin
+						end else begin							
 							$display("\n \n", $time,"\n ADD FLAG ERROR \n resultado esperado %b",flag0,"  \n resultado recebido %b ", ULA_flags);
 						end
 					end else begin
