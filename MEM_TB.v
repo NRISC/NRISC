@@ -105,17 +105,21 @@ always @(x)      //sempre que houver mensagem troca as variáveis e mostra se é
  always@(negedge clk) begin	
 	if(i==0)begin
 		if ((dataOUT0 == dataIN0) && (dataOUT1 == dataIN1)) begin
-			$display("escrita e leitura teste ok" , $time, "unidade de tempo");
+			$display("\n \n escrita e leitura teste ok" , $time, "unidade de tempo");
 			x=~x;
 		end else begin
 			if ((dataOUT0 == dataIN0))begin 
-				$display("data0 com erro", $time, "unidade de tempo");
+				$display("\n \n data0 com erro", $time, "unidade de tempo","\n      recebido ",dataOUT0,"\n esperado  ",dataIN0);
 				x=~x;
-				end
-			if ((dataOUT1 == dataIN1))begin
-				$display("data1 com erro", $time, "unidade de tempo");	
+			end else if ((dataOUT1 == dataIN1))begin
+				$display("\n \n data1 com erro", $time, "unidade de tempo","\n      recebido ",dataOUT1,"\n esperado  ",dataIN1);	
 				x=~x;
-				end
+			end else begin
+				$display("\n\n  ERRO ", $time, "unidade de tempo");
+				$display("\n data0 com erro","\n      recebido ",dataOUT0,"\n esperado  ",dataIN0);
+				$display("\n data1 com erro","\n      recebido ",dataOUT1,"\n esperado  ",dataIN1);
+			end
+			
 			
 		end
  	//dataADDR0=dataADDR0+1;
