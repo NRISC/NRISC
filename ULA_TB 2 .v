@@ -69,7 +69,7 @@ always @(posedge clk)
 		incdec=0;
     end
 	
-always @ (y,ULA_ctrl)
+always @ (ULA_ctrl)
 	begin
 		if (ULA_ctrl==4'b0000 | ULA_ctrl==0001)begin
 			incdec <= $random%(2'b11);
@@ -78,7 +78,7 @@ always @ (y,ULA_ctrl)
 	end
 	
 	
-always @ (x,incdec)
+always @ (incdec)
 	begin
 		if (incdec==1)
 			B <=16'b0000000000000001;
