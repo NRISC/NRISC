@@ -5,9 +5,9 @@
  *                                                                       *
  *  Developer: Mariano                              11-03-2017           *
  *             marianobw@hotmail.com                                     *                                     
- *  Corrector: Marlon                              15-12-2016            *
+ *  		   Marlon                               08-03-2017           *
  *             marlonsigales@gmail.com                                   *
- *	           Jean Carlos Scheunemann             15-12-2016            *
+ *	Corrector: Jean Carlos Scheunemann              08-03-2017           *
  *             jeancarsch@gmail.com                                      *
  *                                                                       *
  *************************************************************************/ 
@@ -34,7 +34,7 @@
  reg [Ncores-1:0] 	dataLoad;
 
  
- 
+ // Device Under Test instantiation <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  DataMEM #(.Ncores(Ncores), .Lmem(Lmem), .TAM(TAM)) dut
 				(
 				.dataIN0(dataIN0),
@@ -61,40 +61,38 @@ initial dataIN1 = 2;
 initial dataLoad = 0;
 initial dataWrite = 0;
 
-reg x;
-initial x=0;
-reg[1:0] i;
-initial i=0;
-always #(PERIOD/2) clk = ~clk;
+reg x;				// flag de controle
+initial x=0;        // flag de controle
+reg[1:0] i;         // flag de controle
+initial i=0;        // flag de controle
+
+always #(PERIOD/2) clk = ~clk;  // geração do clock
  
  
-always @(x)      //sempre que houver mensagem troca as variáveis e mostra se é ok ou não
+ // random value generation
+always @(x)     
     begin
-	
-	//$display (" %s ", message);         
-    //$stop;  
-	
-	
+
         /*random comand sintax:
         min + {$random(seed)}%(max-min+1) or can use $dist_uniform(seed, min, max) */
-		#2
+		#2 // espera estabilizar a saída
 		dataIN0   <= {$random()}%(17'b11111111111111111);
 		dataIN1   <= {$random()}%(17'b11111111111111111);
 		dataADDR0 <= {$random()}%(8'b11111111);
 		dataADDR1 <= {$random()}%(8'b11111111);
-		//dataLoad  <= {$random()}%(17'b11111111111111111);
-		//dataWrite <= {$random()}%(17'b11111111111111111);
+
 	   
     end 
  
 /*==========================================================*/ 
  
  always @(posedge clk)begin
-	if ((i==2)||(i==0))begin
+	
+	if ((i==2)||(i==0))begin	// escrita da memória
 		dataWrite=2'b11;
 		dataLoad=2'b00;	
 		i=1;
-	end else if (i==1)begin
+	end else if (i==1)begin		// leitura da memória
 		dataWrite=2'b00;
 		dataLoad=2'b11;
 		i=2;
@@ -104,7 +102,8 @@ always @(x)      //sempre que houver mensagem troca as variáveis e mostra se é
 
  always@(negedge clk) begin	
 	if(i==2)begin
-	#1
+	#1 // espera estabilizar a saída
+	
 		if ((dataOUT0 == dataIN0) && (dataOUT1 == dataIN1)) begin
 			$display("\n \n escrita e leitura teste ok" , $time, "   unidade de tempo");
 			x=~x;
@@ -124,11 +123,6 @@ always @(x)      //sempre que houver mensagem troca as variáveis e mostra se é
 			
 			
 		end
- 	//dataADDR0=dataADDR0+1;
- 	//dataADDR1=dataADDR1+1;
- 	//if ((dataOUT0 == dataIN0) && (dataOUT1 == dataIN1))begin
- 	//	$display("pode ser que está escrevendo em toda memória a mesma coisa" , $time, "unidade de tempo");
- 	//	x=~x;
  	end
  
  
