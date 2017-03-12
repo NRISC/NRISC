@@ -1,11 +1,11 @@
 //ULA
 
 /*************************************************************************
- *  descricao do bloco ula                              versao 0.1      *
+ *  descricao do bloco ula                              versao 0.11      *
  *                                                                       *
  *  Developer: Marlon                              15-12-2016            *
  *             marlonsigales@gmail.com                                   *
- *  Corrector: Mariano                             28-11-2016            *
+ *  Corrector: Mariano                             11-03-2017            *
  *             Jean Carlos Scheunemann             22-11-2016            *
  *             jeancarsch@gmail.com                                      *
  *                                                                       *
