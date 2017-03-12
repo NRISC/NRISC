@@ -81,12 +81,12 @@ module DataMEM(
 				//cpu0
 				assign sharedReadCLK[0]=dataLoad[0] & dataADDR0[Lmem] & ~clk;
 				always @ ( posedge sharedReadCLK[0]) begin
-						dataOUT0=SharedMEM[dataADDR1[Lmem-1:0]];
+						dataOUT0=SharedMEM[0][dataADDR1[Lmem-1:0]];
 				end
 				//cpu1
 				assign sharedReadCLK[1]=dataLoad[1] & dataADDR1[Lmem] & ~clk;
 				always @ ( posedge sharedReadCLK[1]) begin
-						dataOUT1=SharedMEM[dataADDR1[Lmem-1:0]];
+						dataOUT1=SharedMEM[1][dataADDR1[Lmem-1:0]];
 				end
 				//Escrita
 				always @ ( negedge clk ) begin
@@ -94,7 +94,7 @@ module DataMEM(
 					sharedIn1REG=dataIN1;
 					sharedIn1ADDR=dataADDR1[Lmem-1:0];
 				end
-				assign sharedWriteCLK=((dataWrite[0] & dataADDR0[Lmem]) | sharedCtrlREG) & ~clk; //<----------- verificar se funciona
+				assign sharedWriteCLK=(dataWrite[0] | sharedCtrlREG) & ~clk; //<----------- verificar se funciona
 				assign sharedInDATA = (dataLoad[0]) ? dataIN0 : ( sharedCtrlREG ? sharedIn1REG : dataIN1 ); //Data Mux
 				assign sharedInADDR = (dataLoad[0]) ? dataADDR0[Lmem-1:0] : ( sharedCtrlREG ? sharedIn1ADDR : dataADDR1[Lmem-1:0]);// ADDR mux
 				always @ ( posedge sharedWriteCLK ) begin
