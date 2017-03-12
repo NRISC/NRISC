@@ -78,7 +78,7 @@ always @(x)
 		#4 // espera estabilizar a saída
 		dataIN0   <= {$random()}%(17'b11111111111111111);
 		dataIN1   <= {$random()}%(17'b11111111111111111);
-		dataADDR0 <= {$random()}%(8'b11111111);
+		dataADDR0 <= {$random()}%(9'b111111111);
 		dataADDR1 <= {$random()}%(8'b11111111);
 
 	   
