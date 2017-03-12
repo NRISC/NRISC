@@ -1,9 +1,9 @@
 //MEM_TB
 
 /*************************************************************************
- *  descricao do testbench da MEM                   versao 2.02          *
+ *  descricao do testbench da MEM                   versao 2.20          *
  *                                                                       *
- *  Developer: Mariano                              11-03-2017           *
+ *  Developer: Mariano                              12-03-2017           *
  *             marianobw@hotmail.com                                     *                                     
  *  		   Marlon                               08-03-2017           *
  *             marlonsigales@gmail.com                                   *
