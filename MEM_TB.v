@@ -72,13 +72,13 @@ always #(PERIOD/2) clk = ~clk;  // geração do clock
  // random value generation
 always @(x)     
     begin
-
+		
         /*random comand sintax:
         min + {$random(seed)}%(max-min+1) or can use $dist_uniform(seed, min, max) */
 		#2 // espera estabilizar a saída
 		dataIN0   <= {$random()}%(17'b11111111111111111);
 		dataIN1   <= {$random()}%(17'b11111111111111111);
-		dataADDR0 <= {$random()}%(8'b11111111);
+		dataADDR0 <= {$random()}%(9'b111111111);
 		dataADDR1 <= {$random()}%(8'b11111111);
 
 	   
