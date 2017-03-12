@@ -18,7 +18,7 @@ module ULA_TB2;
 
 localparam integer PERIOD = 10;
 
-parameter TAM = 16;
+parameter TAM = 4;
 
 reg signed [TAM-1:0] ULA_A;
 reg signed [TAM-1:0] ULA_B;
@@ -46,23 +46,26 @@ NRISC_ULA #(.TAM(TAM)) DUT
 initial clk = 1'b0;
   always #(PERIOD/2) clk = ~clk;
   
+
 initial incdec = 0;
 
 
 reg [TAM-1:0] A,B,Am,Bm;
 
 
-
   // random value generation
 always @(posedge clk)      
     begin
       /*random comand sintax:
+
              min + {$random(seed)}%(max-min+1) or can use $dist_uniform(seed, min, max) */
+
 		A = {$random()}%(17'b11111111111111111) ; 
 		B = {$random()}%(17'b11111111111111111) ; 
 		ULA_ctrl[3:0] <= {$random()}%(5'b11111) ; 
 		ULA_B <= B;
 		ULA_A <= A;
+
 		incdec=0;
     end
 	
@@ -73,12 +76,14 @@ always @ (ULA_ctrl)
 		end else incdec=0;
 	
 	end
-	
+
 always @ (incdec)
 	begin
 		if (incdec==1)
 			B <=16'b0000000000000001;
 	end
+
+
 
 reg signed [TAM-1:0] amaisb;  // 0000
 reg signed [TAM:0] amaisb2;  // 0000
@@ -98,6 +103,7 @@ reg carrymais,carrymenos,negmenos,negmais,zero;
 always @ ( * ) begin
 
 // Geração dos valores de saída da ULA
+
 	amaisb = A + B;
 	amenosb = A - B; 
 	amaisb2 = A + B;
@@ -111,7 +117,9 @@ always @ ( * ) begin
 	artl = {ULA_A[TAM-2:0],ULA_A[TAM-1]};
 	anot = ~ULA_A;
 
+
 // Analise da flag zero	
+
 	if (ULA_OUT == 0) begin
 		zero = 1;
 	end else begin
@@ -119,6 +127,7 @@ always @ ( * ) begin
 	end
 	
 // Analise da flag carry	
+
 	if (A[TAM-1]==B[TAM-1]) begin
 		carrymais=amaisb[TAM-1];
 	end else begin
@@ -132,13 +141,15 @@ always @ ( * ) begin
 	end else begin
 		carrymenos=(amenosb[TAM-1]);
 	end
-	
+
 // Tirar modulo de um numero para analisar a flag minus
+
 	if (A[TAM-1]==1'b1) begin
 		Am = ~A + 1;
 	end else begin
 		Am = A;
 	end
+
 	
 	if (B[TAM-1] ==1'b1)begin
 		Bm = ~B + 1;
@@ -168,8 +179,7 @@ always @ ( * ) begin
 	end else begin // se A = B 
 		negmenos = 0;
 	end
-		
-	
+
 // Agrupamento das flags minus,zero,carry conforme comando	
 	flag0 = {negmais,zero,carrymais}; 		//soma
 	flag1 = {negmenos,zero,carrymenos};		//subtração
