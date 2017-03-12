@@ -75,7 +75,7 @@ always @(x)
 
         /*random comand sintax:
         min + {$random(seed)}%(max-min+1) or can use $dist_uniform(seed, min, max) */
-		#2 // espera estabilizar a saída
+		#4 // espera estabilizar a saída
 		dataIN0   <= {$random()}%(17'b11111111111111111);
 		dataIN1   <= {$random()}%(17'b11111111111111111);
 		dataADDR0 <= {$random()}%(8'b11111111);
@@ -108,10 +108,10 @@ always @(x)
 			$display("\n \n escrita e leitura teste ok" , $time, "   unidade de tempo");
 			x=~x;
 		end else begin
-			if ((dataOUT0 == dataIN0))begin 
+			if ((dataOUT1 == dataIN1))begin 
 				$display("\n \n data0 com erro", $time, "   unidade de tempo","\n      recebido ",dataOUT0,"\n      esperado  ",dataIN0);
 				x=~x;
-			end else if ((dataOUT1 == dataIN1))begin
+			end else if ((dataOUT0 == dataIN0))begin
 				$display("\n \n data1 com erro", $time, "   unidade de tempo","\n      recebido ",dataOUT1,"\n      esperado  ",dataIN1);	
 				x=~x;
 			end else begin
