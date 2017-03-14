@@ -14,9 +14,25 @@
  
  `timescale 1 ns / 1 ns  // only for cadence, comment in modelSim
 
-module CPU;
+module CPU( // DATA MEM
+			DATA_IN,			
+			DATA_Out,
+			CORE_DATA_write,
+			CORE_DATA_load,
+			CORE_DATA_ADDR_clk,
+			
 
-localparam integer PERIOD = 10;
+			// PROG MEM
+			Instruction,
+			CORE_Status
+			ProgADDR//,
+			
+			clk,
+			rst
+
+			);
+
+//localparam integer PERIOD = 10;
 
 parameter TAM = 16;
 
@@ -24,7 +40,18 @@ parameter TAM = 16;
 //initial clk = 1'b0;
 //  always #(PERIOD/2) clk = ~clk;
 
+output wire[TAM-1:0] DATA_IN;
+input wire[TAM-1:0] DATA_Out;
+output wire CORE_DATA_write;
+output wire CORE_DATA_load;
+output wire CORE_DATA_ADDR_clk;
 
+
+input wire[TAM-1:0] Instruction;
+output wire CORE_Status;
+
+input wire rst;
+input wire clk;
 
 //reg  [TAM-1:0] RF1;
 //reg  [TAM-1:0] RF2;
@@ -35,29 +62,28 @@ wire [TAM-1:0] ULA_OUT;
 
 
 
-
-
+reg [TAM-1:0] PC;
+wire [2:0] STACK_FLAGS;
+wire [TAM-1:0] STACK_OUT
 
 reg  [15:0] CORE_InstructionIN;   
 wire CORE_InstructionToREGMux;
 reg  [2:0] CORE_ctrl;             
 wire [1:0] CORE_Status;
 wire [3:0] CORE_ULA_ctrl; ///
-reg  [2:0] CORE_ULA_flags,ULA_flags; ///      
+reg  [2:0] CORE_ULA_flags, ULA_flags, flag; ///      
 wire CORE_ULAMux_inc_dec; ///
 wire [3:0] CORE_REG_RF1;
 wire [3:0] CORE_REG_RF2;
 wire [3:0] CORE_REG_RD;
 wire CORE_REG_write;
-wire CORE_DATA_write;
-wire CORE_DATA_load;
-wire CORE_DATA_ADDR_clk;
+
 wire CORE_DATA_REGMux;
 wire CORE_STACK_ctrl;
 wire [1:0] CORE_PC_ctrl;          
 wire CORE_PC_clk;
-reg  clk;
-reg  rst;
+//reg  clk;
+//reg  rst;
 
 
 
@@ -87,8 +113,8 @@ NRISC_ULA #(.TAM(TAM)) DUT(
 			);
 			
 			
-REGs DUT (
-              .RD(RD),
+REGs DUT #(.TAM(TAM)) (
+              .RD(RD), ///
               .RF1(RF1), ///
               .RF2(RF2), ///
               .CORE_REG_RD(CORE_REG_RD), ///
@@ -99,7 +125,7 @@ REGs DUT (
             );
 
 			
-NRISC_CORE DUT(
+NRISC_CORE DUT #(.TAM(TAM))(
 			.CORE_InstructionIN(CORE_InstructionIN),		       	//instruction input
 			.CORE_InstructionToREGMux(CORE_InstructionToREGMux),	//MUX ctrl of instruction in to REGs
 			.CORE_ctrl(CORE_ctrl),					   			//CORE external input ctrl BUS
@@ -123,6 +149,44 @@ NRISC_CORE DUT(
 			);
 
 //------------------------------------
+
+wire LI_inst;
+
+assign LI_inst = (CORE_InstructionToREGMux)? Instruction : ULA_OUT;
+
+assign RD = (CORE_DATA_REGMux)? DATA_Out : LI_inst;
+
+assign DATA_IN = ULA_OUT;
+
+
+//-------------------------------------------------------
+always @(negedge clk) begin
+       CORE_ULA_flags = (CORE_Status(0) & CORE_Status(1)) ? STACK_FLAGS[0:2] : ULA_flags;
+end
+
+always @(posedge clk) begin //talvez essa merda seja borda de descida
+       PC = (CORE_Status(1)) ? (CORE_Status(0)? STACK_OUT : ULA_OUT) : (CORE_Status(0)?  PC : (PC+1));
+end
+//---------------------------------------------------------
+//stack (entradas (CORE_STACK_ctrl, PC, CORE_ULA_flags )saídas(STACK_FLAGS, STACK_OUT));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
