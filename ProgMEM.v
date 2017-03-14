@@ -6,8 +6,7 @@ module progMEM(
                 rst
                 );
     parameter TAM=16;
-    parameter LMEM=8;
-
+    parameter Lmem=8;
 
     input wire [0:TAM-1] progADDR;
     input wire [1:0] CoreStatus;
@@ -15,18 +14,16 @@ module progMEM(
     input wire rst;
     input wire clk;
 
-    output reg [0:15] Instruction;
+    output reg [15:0] Instruction;
 
-    reg [0:15] MainMEM [0:(1<<Lmem)-1];
-    reg rstPipeline;
+    reg [15:0] MainMEM [0:(1<<Lmem)-1];
+    reg [1:0] lastCoreStatus;
 
-    //TODO icialzacao
+    initial $readmemh("Prog.hex", MainMEM); //le o arquivo hexadecimal que contem o programa;
+
     always @ ( negedge clk ) begin
-        Instruction=(CoreStatus==2'b00) ? MainMEM[progADDR[0:Lmem]]:((CoreStatus==2'b01) Instruction ?);
+        lastCoreStatus=CoreStatus;
+        if(CoreStatus==2'b00)
+            Instruction=(lastCoreStatus==2'b00 || lastCoreStatus==2'b01) ? MainMEM[progADDR[0:Lmem]+1]:MainMEM[progADDR[0:Lmem]];
     end
-    always @ (posedge clk) begin
-
-
-    end
-
 endmodule
