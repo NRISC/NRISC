@@ -1,6 +1,7 @@
 module progMEM(
                 Instruction,
                 progADDR,
+                CoreStatus,
                 clk,
                 rst
                 );
@@ -9,19 +10,22 @@ module progMEM(
 
 
     input wire [0:TAM-1] progADDR;
+    input wire [1:0] CoreStatus;
+
     input wire rst;
     input wire clk;
 
     output reg [0:15] Instruction;
 
     reg [0:15] MainMEM [0:(1<<Lmem)-1];
-    reg [0:15] peipe1;
+    reg rstPipeline;
 
     //TODO icialzacao
-
+    always @ ( negedge clk ) begin
+        Instruction=(CoreStatus==2'b00) ? MainMEM[progADDR[0:Lmem]]:((CoreStatus==2'b01) Instruction ?);
+    end
     always @ (posedge clk) begin
-          Instruction=pipe1;
-          pipe1=MainMEM[progADDR[0:Lmem]];
+
 
     end
 
