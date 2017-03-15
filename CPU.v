@@ -1,13 +1,13 @@
 //CPU
 
 /*************************************************************************
- *  descricao da CPU                                versao 0.01          *
+ *  descricao da CPU                                versao 0.69          *
  *                                                                       *
- *  Developer: Mariano                             11-01-2017            *
+ *  Developer: Mariano                             14-03-2017            *
  *             marianobw@hotmail.com                                     *
- *  Corrector: Marlon                              15-12-2016            *
+ *  Corrector: Marlon                              14-03-2017            *
  *             marlonsigales@gmail.com                                   *
- *			   Jean Carlos Scheunemann             15-12-2016            *
+ *			   Jean Carlos Scheunemann             14-03-2017            *
  *             jeancarsch@gmail.com                                      *
  *                                                                       *
  *************************************************************************/ 
@@ -21,12 +21,12 @@ module CPU( // DATA MEM
 			CORE_DATA_load,
 			CORE_DATA_ADDR,
 			
-
 			// PROG MEM
 			Instruction,
-			CORE_Status
-			ProgADDR//,
+			CORE_Status,
+			ProgADDR,
 			
+			// ALL
 			clk,
 			rst
 
@@ -113,7 +113,7 @@ NRISC_ULA #(.TAM(TAM)) DUT(
 			);
 			
 			
-REGs DUT #(.TAM(TAM)) (
+REGs #(.TAM(TAM)) DUT  (
               .RD(RD), ///
               .RF1(RF1), ///
               .RF2(RF2), ///
@@ -125,7 +125,7 @@ REGs DUT #(.TAM(TAM)) (
             );
 
 			
-NRISC_CORE DUT #(.TAM(TAM))(
+NRISC_CORE #(.TAM(TAM)) DUT (
 			.CORE_InstructionIN(CORE_InstructionIN),///		    		//instruction input
 			.CORE_InstructionToREGMux(CORE_InstructionToREGMux),///		//MUX ctrl of instruction in to REGs
 			.CORE_ctrl(CORE_ctrl),	//não implementado	   				//CORE external input ctrl BUS
@@ -141,13 +141,23 @@ NRISC_CORE DUT #(.TAM(TAM))(
 			.CORE_DATA_load(CORE_DATA_load), ///						//DATA load ctrl
 			.CORE_DATA_ADDR_clk(CORE_DATA_ADDR_clk),/// 				//DATA clk
 			.CORE_DATA_REGMux(CORE_DATA_REGMux), ///					//DATA to REGs MUX
-			.CORE_STACK_ctrl(CORE_STACK_ctrl),							//CORE to STACK ctrl
+			.CORE_STACK_ctrl(CORE_STACK_ctrl),	///						//CORE to STACK ctrl
 			.CORE_PC_ctrl(CORE_PC_ctrl),//não implementado				//CORE to PC ctrl MUX
 			.CORE_PC_clk(CORE_PC_clk),	//não implementado				//PC clk
 			.clk(clk),													//Main clk source
 			.rst(rst)													//general rst
 			);
 
+			
+stack #(.TAM(TAM)) DUT(
+              .ctrl(CORE_STACK_ctrl), ///
+              .flagsIn(CORE_ULA_flags),///
+              .flagsOut(STACK_FLAGS),///
+              .PCIn(PC),          ///
+              .PCout(STACK_OUT),///
+              .clk(clk),
+              .rst(rst)
+              );
 //------------------------------------
 
 wire[TAM-1:0] LI_inst;
@@ -166,7 +176,7 @@ end
 
 
 always @(negedge clk) begin
-       CORE_ULA_flags = (CORE_Status[0] & CORE_Status[1]) ? STACK_FLAGS[0:2] : ULA_flags;
+       CORE_ULA_flags = (CORE_Status[0] & CORE_Status[1]) ? STACK_FLAGS : ULA_flags;
 end
 
 always @(posedge clk) begin 
