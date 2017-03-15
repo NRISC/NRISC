@@ -19,7 +19,7 @@ module CPU( // DATA MEM
 			DATA_Out,
 			CORE_DATA_write,
 			CORE_DATA_load,
-			CORE_DATA_ADDR_clk,
+			CORE_DATA_ADDR,
 			
 
 			// PROG MEM
@@ -44,10 +44,10 @@ output wire[TAM-1:0] DATA_IN;
 input wire[TAM-1:0] DATA_Out;
 output wire CORE_DATA_write;
 output wire CORE_DATA_load;
-output wire CORE_DATA_ADDR_clk;
+output reg [TAM-1:0] CORE_DATA_ADDR;
 
 
-input wire[TAM-1:0] Instruction;
+//input wire[TAM-1:0] Instruction;
 output wire CORE_Status;
 
 input wire rst;
@@ -66,7 +66,7 @@ reg [TAM-1:0] PC;
 wire [2:0] STACK_FLAGS;
 wire [TAM-1:0] STACK_OUT
 
-reg  [15:0] CORE_InstructionIN;   
+reg  [TAM-1:0] CORE_InstructionIN;   
 wire CORE_InstructionToREGMux;
 reg  [2:0] CORE_ctrl;             
 wire [1:0] CORE_Status;
@@ -76,8 +76,8 @@ wire CORE_ULAMux_inc_dec; ///
 wire [3:0] CORE_REG_RF1;
 wire [3:0] CORE_REG_RF2;
 wire [3:0] CORE_REG_RD;
-wire CORE_REG_write;
-
+wire CORE_DATA_ADDR_clk;
+wire DATA_ADD
 wire CORE_DATA_REGMux;
 wire CORE_STACK_ctrl;
 wire [1:0] CORE_PC_ctrl;          
@@ -107,8 +107,8 @@ NRISC_ULA #(.TAM(TAM)) DUT(
 			.ULA_B (RF2), /// 
 			.incdec(CORE_ULAMux_inc_dec), ///
 			.ULA_ctrl (CORE_ULA_ctrl),  ///
-			.ULA_OUT (ULA_OUT),
-			.ULA_flags (ULA_flags) 
+			.ULA_OUT (ULA_OUT),///
+			.ULA_flags (ULA_flags) ///
 			
 			);
 			
@@ -126,33 +126,33 @@ REGs DUT #(.TAM(TAM)) (
 
 			
 NRISC_CORE DUT #(.TAM(TAM))(
-			.CORE_InstructionIN(CORE_InstructionIN),		       	//instruction input
-			.CORE_InstructionToREGMux(CORE_InstructionToREGMux),	//MUX ctrl of instruction in to REGs
-			.CORE_ctrl(CORE_ctrl),					   			//CORE external input ctrl BUS
-			.CORE_Status(CORE_Status),					   		//CORE status output
-			.CORE_ULA_ctrl(CORE_ULA_ctrl),	 ///			   		//ULA output ctrl BUS
-			.CORE_ULA_flags(CORE_ULA_flags),			   		//ULA flags input
-			.CORE_ULAMux_inc_dec(CORE_ULAMux_inc_dec), ///   		//ULA Inc/dec output MUX ctrl
-			.CORE_REG_RF1(CORE_REG_RF1),///				   			//REGs to ULA ctrl 1
-			.CORE_REG_RF2(CORE_REG_RF2),///				   			//REGs to ULA ctrl 2
-			.CORE_REG_RD(CORE_REG_RD),	///				   		//REGs inputs ctrl
-			.CORE_REG_write(CORE_REG_write),///				   		//REGs write ctrl
-			.CORE_DATA_write(CORE_DATA_write),				   	//DATA write ctrl
-			.CORE_DATA_load(CORE_DATA_load),				   		//DATA load ctrl
-			.CORE_DATA_ADDR_clk(CORE_DATA_ADDR_clk),			   	//DATA clk
-			.CORE_DATA_REGMux(CORE_DATA_REGMux),			   		//DATA to REGs MUX
-			.CORE_STACK_ctrl(CORE_STACK_ctrl),					//CORE to STACK ctrl
-			.CORE_PC_ctrl(CORE_PC_ctrl),							//CORE to PC ctrl MUX
-			.CORE_PC_clk(CORE_PC_clk),							//PC clk
-			.clk(clk),											//Main clk source
-			.rst(rst)											//general rst
+			.CORE_InstructionIN(CORE_InstructionIN),///		    		//instruction input
+			.CORE_InstructionToREGMux(CORE_InstructionToREGMux),///		//MUX ctrl of instruction in to REGs
+			.CORE_ctrl(CORE_ctrl),	//não implementado	   				//CORE external input ctrl BUS
+			.CORE_Status(CORE_Status),///					   			//CORE status output
+			.CORE_ULA_ctrl(CORE_ULA_ctrl),	 ///			   			//ULA output ctrl BUS
+			.CORE_ULA_flags(CORE_ULA_flags),	///		   				//ULA flags input
+			.CORE_ULAMux_inc_dec(CORE_ULAMux_inc_dec), ///   			//ULA Inc/dec output MUX ctrl
+			.CORE_REG_RF1(CORE_REG_RF1),///				   				//REGs to ULA ctrl 1
+			.CORE_REG_RF2(CORE_REG_RF2),///				   				//REGs to ULA ctrl 2
+			.CORE_REG_RD(CORE_REG_RD),	///				   				//REGs inputs ctrl
+			.CORE_REG_write(CORE_REG_write),///				   			//REGs write ctrl
+			.CORE_DATA_write(CORE_DATA_write),	///			   			//DATA write ctrl
+			.CORE_DATA_load(CORE_DATA_load), ///						//DATA load ctrl
+			.CORE_DATA_ADDR_clk(CORE_DATA_ADDR_clk),/// 				//DATA clk
+			.CORE_DATA_REGMux(CORE_DATA_REGMux), ///					//DATA to REGs MUX
+			.CORE_STACK_ctrl(CORE_STACK_ctrl),							//CORE to STACK ctrl
+			.CORE_PC_ctrl(CORE_PC_ctrl),//não implementado				//CORE to PC ctrl MUX
+			.CORE_PC_clk(CORE_PC_clk),	//não implementado				//PC clk
+			.clk(clk),													//Main clk source
+			.rst(rst)													//general rst
 			);
 
 //------------------------------------
 
-wire LI_inst;
+wire[TAM-1:0] LI_inst;
 
-assign LI_inst = (CORE_InstructionToREGMux)? Instruction : ULA_OUT;
+assign LI_inst = (CORE_InstructionToREGMux)? {8{CORE_InstructionIN[7]},CORE_InstructionIN[7:0]} : ULA_OUT;
 
 assign RD = (CORE_DATA_REGMux)? DATA_Out : LI_inst;
 
@@ -160,12 +160,17 @@ assign DATA_IN = ULA_OUT;
 
 
 //-------------------------------------------------------
-always @(negedge clk) begin
-       CORE_ULA_flags = (CORE_Status(0) & CORE_Status(1)) ? STACK_FLAGS[0:2] : ULA_flags;
+always @(posedge CORE_DATA_ADDR_clk)begin
+	CORE_DATA_ADDR = ULA_OUT;
 end
 
-always @(posedge clk) begin //talvez essa merda seja borda de descida
-       PC = (CORE_Status(1)) ? (CORE_Status(0)? STACK_OUT : ULA_OUT) : (CORE_Status(0)?  PC : (PC+1));
+
+always @(negedge clk) begin
+       CORE_ULA_flags = (CORE_Status[0] & CORE_Status[1]) ? STACK_FLAGS[0:2] : ULA_flags;
+end
+
+always @(posedge clk) begin 
+       PC = (CORE_Status[1]) ? (CORE_Status[0]? STACK_OUT : ULA_OUT) : (CORE_Status[0] ? PC : (PC+1));
 end
 //---------------------------------------------------------
 //stack (entradas (CORE_STACK_ctrl, PC, CORE_ULA_flags )saídas(STACK_FLAGS, STACK_OUT));
