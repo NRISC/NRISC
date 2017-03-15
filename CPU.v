@@ -48,8 +48,9 @@ output wire CORE_DATA_load;
 output reg [TAM-1:0] CORE_DATA_ADDR;
 
 
-//input wire[TAM-1:0] Instruction;
-output wire CORE_Status;
+input wire[TAM-1:0] Instruction;
+output wire [1:0] CORE_Status;
+output wire [TAM-1:0] ProgADDR;
 
 input wire rst;
 input wire clk;
@@ -61,16 +62,13 @@ reg [3:0] ULA_ctrl;
 
 wire [TAM-1:0] ULA_OUT;
 
-
-
 reg [TAM-1:0] PC;
 wire [2:0] STACK_FLAGS;
-wire [TAM-1:0] STACK_OUT
+wire [TAM-1:0] STACK_OUT;
 
-reg  [TAM-1:0] CORE_InstructionIN;
+reg  [15:0] CORE_InstructionIN;
 wire CORE_InstructionToREGMux;
 reg  [2:0] CORE_ctrl;
-wire [1:0] CORE_Status;
 wire [3:0] CORE_ULA_ctrl; ///
 reg  [2:0] CORE_ULA_flags, ULA_flags, flag; ///
 wire CORE_ULAMux_inc_dec; ///
@@ -78,7 +76,7 @@ wire [3:0] CORE_REG_RF1;
 wire [3:0] CORE_REG_RF2;
 wire [3:0] CORE_REG_RD;
 wire CORE_DATA_ADDR_clk;
-wire DATA_ADD
+wire DATA_ADD;
 wire CORE_DATA_REGMux;
 wire CORE_STACK_ctrl;
 wire [1:0] CORE_PC_ctrl;
@@ -86,6 +84,11 @@ wire CORE_PC_clk;
 //reg  clk;
 //reg  rst;
 
+always @ ( posedge clk ) begin
+  CORE_InstructionIN=Instruction;
+end
+
+assign ProgADDR=PC;
 
 
 reg write;
@@ -95,7 +98,7 @@ reg write;
 //reg [3:0] CORE_REG_RF1;
 //reg [3:0] CORE_REG_RF2;
 
-reg [TAM-1:0] RD;
+wire [TAM-1:0] RD;
 
 wire [TAM-1:0] RF1;
 wire [TAM-1:0] RF2;
@@ -163,7 +166,7 @@ stack #(.TAM(TAM),.NStack(NStack)) PILHA (
 
 wire[TAM-1:0] LI_inst;
 
-assign LI_inst = (CORE_InstructionToREGMux)? {8{CORE_InstructionIN[7]},CORE_InstructionIN[7:0]} : ULA_OUT;
+assign LI_inst = (CORE_InstructionToREGMux)? {{8{CORE_InstructionIN[7]}},CORE_InstructionIN[7:0]} : ULA_OUT;
 
 assign RD = (CORE_DATA_REGMux)? DATA_Out : LI_inst;
 
@@ -185,3 +188,4 @@ always @(posedge clk) begin
 end
 //---------------------------------------------------------
 //stack (entradas (CORE_STACK_ctrl, PC, CORE_ULA_flags )saídas(STACK_FLAGS, STACK_OUT));
+endmodule
