@@ -7,6 +7,8 @@ module DataMEM(
 				dataADDR1,
 				dataLoad,
 				dataWrite,
+				GPIN,
+				GPOUT,
 				clk,
 				rst,
 				);
@@ -26,6 +28,7 @@ module DataMEM(
 				input wire [TAM-1:0] dataIN1;
 				input wire [TAM-1:0] dataADDR0;
 				input wire [TAM-1:0] dataADDR1;
+				input wire [TAM-1:0] GPIN;
 				input wire [Ncores-1:0] dataWrite;
 				input wire [Ncores-1:0] dataLoad;
 				/*
@@ -33,6 +36,7 @@ module DataMEM(
 				*/
 				output reg [TAM-1:0] dataOUT0;
 				output reg [TAM-1:0] dataOUT1;
+				output reg [TAM-1:0] GPOUT;
 				/*
 				* Internal components
 				*/
@@ -50,6 +54,11 @@ module DataMEM(
 				wire  sharedWriteCLK;
 				wire [Ncores-1:0] sharedReadCLK;
 				wire SharedWriteConflict;
+
+				always @ ( posedge clk ) begin
+						SharedMEM[0]=GPIN;
+						GPOUT=SharedMEM[1];
+				end
 
 				/*
 				* Escrita e leitura na memoria propria
