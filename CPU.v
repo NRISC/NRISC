@@ -10,22 +10,22 @@
  *			   Jean Carlos Scheunemann             14-03-2017            *
  *             jeancarsch@gmail.com                                      *
  *                                                                       *
- *************************************************************************/ 
- 
+ *************************************************************************/
+
  `timescale 1 ns / 1 ns  // only for cadence, comment in modelSim
 
 module CPU( // DATA MEM
-			DATA_IN,			
+			DATA_IN,
 			DATA_Out,
 			CORE_DATA_write,
 			CORE_DATA_load,
 			CORE_DATA_ADDR,
-			
+
 			// PROG MEM
 			Instruction,
 			CORE_Status,
 			ProgADDR,
-			
+
 			// ALL
 			clk,
 			rst
@@ -35,6 +35,7 @@ module CPU( // DATA MEM
 //localparam integer PERIOD = 10;
 
 parameter TAM = 16;
+parameter NStack=8;
 
 // clock generation
 //initial clk = 1'b0;
@@ -66,12 +67,12 @@ reg [TAM-1:0] PC;
 wire [2:0] STACK_FLAGS;
 wire [TAM-1:0] STACK_OUT
 
-reg  [TAM-1:0] CORE_InstructionIN;   
+reg  [TAM-1:0] CORE_InstructionIN;
 wire CORE_InstructionToREGMux;
-reg  [2:0] CORE_ctrl;             
+reg  [2:0] CORE_ctrl;
 wire [1:0] CORE_Status;
 wire [3:0] CORE_ULA_ctrl; ///
-reg  [2:0] CORE_ULA_flags, ULA_flags, flag; ///      
+reg  [2:0] CORE_ULA_flags, ULA_flags, flag; ///
 wire CORE_ULAMux_inc_dec; ///
 wire [3:0] CORE_REG_RF1;
 wire [3:0] CORE_REG_RF2;
@@ -80,7 +81,7 @@ wire CORE_DATA_ADDR_clk;
 wire DATA_ADD
 wire CORE_DATA_REGMux;
 wire CORE_STACK_ctrl;
-wire [1:0] CORE_PC_ctrl;          
+wire [1:0] CORE_PC_ctrl;
 wire CORE_PC_clk;
 //reg  clk;
 //reg  rst;
@@ -99,21 +100,21 @@ reg [TAM-1:0] RD;
 wire [TAM-1:0] RF1;
 wire [TAM-1:0] RF2;
 
-		
+
 // Device Under Test instantiation <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
-NRISC_ULA #(.TAM(TAM)) DUT(
+
+NRISC_ULA #(.TAM(TAM)) ULA(
 			.ULA_A (RF1), ///
-			.ULA_B (RF2), /// 
+			.ULA_B (RF2), ///
 			.incdec(CORE_ULAMux_inc_dec), ///
 			.ULA_ctrl (CORE_ULA_ctrl),  ///
 			.ULA_OUT (ULA_OUT),///
 			.ULA_flags (ULA_flags) ///
-			
+
 			);
-			
-			
-REGs #(.TAM(TAM)) DUT  (
+
+
+REGs #(.TAM(TAM)) REGISTRADORES  (
               .RD(RD), ///
               .RF1(RF1), ///
               .RF2(RF2), ///
@@ -124,8 +125,8 @@ REGs #(.TAM(TAM)) DUT  (
               .rst(rst)
             );
 
-			
-NRISC_CORE #(.TAM(TAM)) DUT (
+
+NRISC_CORE #(.TAM(TAM)) CORE (
 			.CORE_InstructionIN(CORE_InstructionIN),///		    		//instruction input
 			.CORE_InstructionToREGMux(CORE_InstructionToREGMux),///		//MUX ctrl of instruction in to REGs
 			.CORE_ctrl(CORE_ctrl),	//não implementado	   				//CORE external input ctrl BUS
@@ -148,8 +149,8 @@ NRISC_CORE #(.TAM(TAM)) DUT (
 			.rst(rst)													//general rst
 			);
 
-			
-stack #(.TAM(TAM)) DUT(
+
+stack #(.TAM(TAM),.NStack(NStack)) PILHA (
               .ctrl(CORE_STACK_ctrl), ///
               .flagsIn(CORE_ULA_flags),///
               .flagsOut(STACK_FLAGS),///
@@ -179,29 +180,8 @@ always @(negedge clk) begin
        CORE_ULA_flags = (CORE_Status[0] & CORE_Status[1]) ? STACK_FLAGS : ULA_flags;
 end
 
-always @(posedge clk) begin 
+always @(posedge clk) begin
        PC = (CORE_Status[1]) ? (CORE_Status[0]? STACK_OUT : ULA_OUT) : (CORE_Status[0] ? PC : (PC+1));
 end
 //---------------------------------------------------------
 //stack (entradas (CORE_STACK_ctrl, PC, CORE_ULA_flags )saídas(STACK_FLAGS, STACK_OUT));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
