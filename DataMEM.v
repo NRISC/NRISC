@@ -10,7 +10,7 @@ module DataMEM(
 				GPIN,
 				GPOUT,
 				clk,
-				rst,
+				rst
 				);
 				/*
 				*Paremeter Def's
