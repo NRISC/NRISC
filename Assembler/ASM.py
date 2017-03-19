@@ -81,11 +81,11 @@ for x in code:
                 try:
                     RD=REGs[tmp[1].upper()]
                     LI=int(tmp[2],0)
-                    if(LI<256 && LI>15):
+                    if(LI<256 and LI>15):
                         out+=Opcode[op]+RD+("%X" % LI)+"\n"
 
-                    elif(LI<16 && LI>-1):
-                        out+=Opcode[op]+RD+("%X" % LI)+"\n"
+                    elif(LI<16 and LI>-1):
+                        out+=Opcode[op]+RD+'0'+("%X" % LI)+"\n"
                     else:
                         print "valor imediato fora da faixa"
                         errorCount+=1
