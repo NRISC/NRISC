@@ -70,7 +70,7 @@ reg  [15:0] CORE_InstructionIN;
 wire CORE_InstructionToREGMux;
 reg  [2:0] CORE_ctrl;
 wire [3:0] CORE_ULA_ctrl; ///
-reg  [2:0] CORE_ULA_flags, ULA_flags, flag; ///
+reg  [2:0] CORE_ULA_flags; ///
 wire CORE_ULAMux_inc_dec; ///
 wire [3:0] CORE_REG_RF1;
 wire [3:0] CORE_REG_RF2;
@@ -78,11 +78,12 @@ wire [3:0] CORE_REG_RD;
 wire CORE_DATA_ADDR_clk;
 wire DATA_ADD;
 wire CORE_DATA_REGMux;
-wire CORE_STACK_ctrl;
+wire [1:0]CORE_STACK_ctrl;
 wire [1:0] CORE_PC_ctrl;
 wire CORE_PC_clk;
 //reg  clk;
 //reg  rst;
+wire [2:0] ULA_flags;
 
 always @ ( posedge clk ) begin
   CORE_InstructionIN=Instruction;
@@ -129,7 +130,7 @@ REGs #(.TAM(TAM)) REGISTRADORES  (
             );
 
 
-NRISC_CORE #(.TAM(TAM)) CORE (
+NRISC_CORE CORE (
 			.CORE_InstructionIN(CORE_InstructionIN),///		    		//instruction input
 			.CORE_InstructionToREGMux(CORE_InstructionToREGMux),///		//MUX ctrl of instruction in to REGs
 			.CORE_ctrl(CORE_ctrl),	//não implementado	   				//CORE external input ctrl BUS
@@ -181,6 +182,10 @@ end
 
 always @(negedge clk) begin
        CORE_ULA_flags = (CORE_Status[0] & CORE_Status[1]) ? STACK_FLAGS : ULA_flags;
+end
+
+always @(rst) begin
+       PC = 0;
 end
 
 always @(posedge clk) begin
