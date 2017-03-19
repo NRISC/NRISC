@@ -66,7 +66,7 @@ reg [TAM-1:0] PC;
 wire [2:0] STACK_FLAGS;
 wire [TAM-1:0] STACK_OUT;
 
-reg  [15:0] CORE_InstructionIN;
+wire  [15:0] CORE_InstructionIN;
 wire CORE_InstructionToREGMux;
 reg  [2:0] CORE_ctrl;
 wire [3:0] CORE_ULA_ctrl; ///
@@ -85,9 +85,9 @@ wire CORE_PC_clk;
 //reg  rst;
 wire [2:0] ULA_flags;
 
-always @ ( posedge clk ) begin
+assign
   CORE_InstructionIN=Instruction;
-end
+
 
 assign ProgADDR=PC;
 
