@@ -66,7 +66,7 @@ reg [TAM-1:0] PC;
 wire [2:0] STACK_FLAGS;
 wire [TAM-1:0] STACK_OUT;
 
-wire  [15:0] CORE_InstructionIN;
+wire  [15:0] CORE_InstructionIN; //reg ???
 wire CORE_InstructionToREGMux;
 reg  [2:0] CORE_ctrl;
 wire [3:0] CORE_ULA_ctrl; ///
@@ -84,6 +84,15 @@ wire CORE_PC_clk;
 //reg  clk;
 //reg  rst;
 wire [2:0] ULA_flags;
+
+wire auxiliar;
+
+//assign #1 auxiliar = clk;
+reg   [15:0] CORE_InstructionINreg;
+
+always @ (posedge clk)
+CORE_InstructionINreg=CORE_InstructionIN;
+
 
 assign
   CORE_InstructionIN=Instruction;
@@ -167,7 +176,7 @@ stack #(.TAM(TAM),.NStack(NStack)) PILHA (
 
 wire[TAM-1:0] LI_inst;
 
-assign LI_inst = (CORE_InstructionToREGMux)? {{8{CORE_InstructionIN[7]}},CORE_InstructionIN[7:0]} : ULA_OUT;
+assign LI_inst = (CORE_InstructionToREGMux)? {{8{CORE_InstructionINreg[7]}},CORE_InstructionINreg[7:0]} : ULA_OUT;
 
 assign RD = (CORE_DATA_REGMux)? DATA_Out : LI_inst;
 

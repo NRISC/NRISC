@@ -29,8 +29,8 @@ module ZueiraCore(
 
       CPU #(.TAM(TAM),.NStack(NStack))
           NRISC0( // DATA MEM
-          			.DATA_IN(DATA_CPU0),
-          			.DATA_Out(CPU0_DATA),
+          			.DATA_IN(CPU0_DATA),
+          			.DATA_Out(DATA_CPU0),
           			.CORE_DATA_write(CPU0_DATAWrite),
           			.CORE_DATA_load(CPU0_DATALoad),
           			.CORE_DATA_ADDR(CPU0_DATAAddr),
@@ -42,8 +42,8 @@ module ZueiraCore(
       			);
       CPU #(.TAM(TAM),.NStack(NStack))
           NRISC1( // DATA MEM
-          			.DATA_IN(DATA_CPU1),
-          			.DATA_Out(CPU1_DATA),
+          			.DATA_IN(CPU1_DATA),
+          			.DATA_Out(DATA_CPU1),
           			.CORE_DATA_write(CPU1_DATAWrite),
           			.CORE_DATA_load(CPU1_DATALoad),
           			.CORE_DATA_ADDR(CPU1_DATAAddr),

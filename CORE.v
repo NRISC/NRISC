@@ -254,7 +254,11 @@ module NRISC_CORE(
 														CORE_InstructionToREGMux<=0;
 														CORE_DATA_REGMux<=0;
 														//update Status
-														CORE_Status<=2 & {2{CORE_ULA_flags[1]}};
+														if (CORE_ULA_flags[1]==1'b1)begin
+															CORE_Status=2'b10;
+														end else begin
+															CORE_Status<=0;
+														end
 												end
 									4'h6: begin	//JC instruction
 														//ULA config ADD mode
@@ -268,21 +272,29 @@ module NRISC_CORE(
 														CORE_InstructionToREGMux<=0;
 														CORE_DATA_REGMux<=0;
 														//update Status
-														CORE_Status<=2 & {2{CORE_ULA_flags[2]}};
+														if (CORE_ULA_flags[0]==1'b1)begin
+															CORE_Status<=2;
+														end else begin
+															CORE_Status<=0;
+														end
 												end
 									4'h7: begin	//JM instruction
-													//ULA config ADD mode
-													CORE_ULA_ctrl<=4'h0;
-													CORE_ULAMux_inc_dec<=0;
-													//REG config
-													//CORE_REG_RD<= CORE_InstructionIN[11:8];
-													CORE_REG_RF1<=CORE_InstructionIN[7:4];
-													CORE_REG_RF2<=CORE_InstructionIN[3:0];
-													//REG MUX's config
-													CORE_InstructionToREGMux<=0;
-													CORE_DATA_REGMux<=0;
-													//update Status
-													CORE_Status<=2 & {2{CORE_ULA_flags[0]}};
+														//ULA config ADD mode
+														CORE_ULA_ctrl<=4'h0;
+														CORE_ULAMux_inc_dec<=0;
+														//REG config
+														//CORE_REG_RD<= CORE_InstructionIN[11:8];
+														CORE_REG_RF1<=CORE_InstructionIN[7:4];
+														CORE_REG_RF2<=CORE_InstructionIN[3:0];
+														//REG MUX's config
+														CORE_InstructionToREGMux<=0;
+														CORE_DATA_REGMux<=0;
+														//update Status
+														if (CORE_ULA_flags[2]==1'b1)begin
+															CORE_Status<=2;
+														end else begin
+															CORE_Status<=0;
+														end
 												end
 									//ULA instructions
 									4'h8: begin	//ADD instruction
